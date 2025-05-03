@@ -91,15 +91,15 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-bold text-center text-foreground">Login</CardTitle>
+          <CardDescription className="text-center text-muted-foreground">
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -110,7 +110,7 @@ const Login: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-foreground">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -125,14 +125,14 @@ const Login: React.FC = () => {
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? "Logging in..." : "Login"}
             </Button>
-            <div className="text-sm text-center text-muted-foreground">
+            <div className="text-sm text-center text-foreground">
               Don't have an account?{" "}
               <Link to="/register" className="text-primary hover:underline">
                 Register
               </Link>
             </div>
             
-            <div className="w-full border-t pt-4 text-center text-sm text-muted-foreground">
+            <div className="w-full border-t pt-4 text-center text-sm text-foreground">
               <div className="mb-2">Try a demo account:</div>
               <div className="flex flex-wrap gap-2 justify-center">
                 <Button
