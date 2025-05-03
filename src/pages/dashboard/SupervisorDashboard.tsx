@@ -130,11 +130,11 @@ const SupervisorDashboard: React.FC = () => {
   
   // Calculate average grade
   const submissionsWithGrades = submissions.filter(sub => {
-    return evaluations.some(eval => eval.submissionId === sub.id);
+    return evaluations.some(evaluation => evaluation.submissionId === sub.id);
   });
   
   const averageGrade = submissionsWithGrades.length > 0
-    ? evaluations.reduce((acc, eval) => acc + eval.grade, 0) / submissionsWithGrades.length
+    ? evaluations.reduce((acc, evaluation) => acc + evaluation.grade, 0) / submissionsWithGrades.length
     : 0;
 
   // Recently graded submissions
@@ -384,13 +384,13 @@ const SupervisorDashboard: React.FC = () => {
                   : 0;
                 
                 // Calculate average grade for this student if they have any
-                const studentEvaluations = evaluations.filter(eval => {
-                  const submission = submissions.find(sub => sub.id === eval.submissionId);
+                const studentEvaluations = evaluations.filter(evaluation => {
+                  const submission = submissions.find(sub => sub.id === evaluation.submissionId);
                   return submission && submission.studentId === student.id;
                 });
                 
                 const studentAvgGrade = studentEvaluations.length > 0
-                  ? studentEvaluations.reduce((acc, eval) => acc + eval.grade, 0) / studentEvaluations.length
+                  ? studentEvaluations.reduce((acc, evaluation) => acc + evaluation.grade, 0) / studentEvaluations.length
                   : null;
                   
                 return (
