@@ -16,7 +16,8 @@ export interface Activity {
   id: string;
   title: string;
   description: string;
-  deadline: string;
+  startDate: string;
+  endDate: string;
   createdAt: string;
   createdBy: string;
 }

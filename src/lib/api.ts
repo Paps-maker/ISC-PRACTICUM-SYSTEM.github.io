@@ -1,5 +1,5 @@
 
-import { Activity } from "@/types";
+import { Activity, User, UserRole } from "@/types";
 
 // Mock data for activities
 const mockActivities: Activity[] = [
@@ -41,6 +41,34 @@ const mockActivities: Activity[] = [
   }
 ];
 
+// Mock data for students
+const mockStudents: User[] = [
+  {
+    id: "1",
+    name: "John Student",
+    email: "student@example.com",
+    role: UserRole.Student
+  },
+  {
+    id: "4",
+    name: "Emma Johnson",
+    email: "emma@example.com",
+    role: UserRole.Student
+  },
+  {
+    id: "5",
+    name: "Michael Smith",
+    email: "michael@example.com",
+    role: UserRole.Student
+  },
+  {
+    id: "6",
+    name: "Sophia Williams",
+    email: "sophia@example.com",
+    role: UserRole.Student
+  }
+];
+
 // Get activities with optional filtering
 export const getActivities = (
   searchQuery?: string,
@@ -77,5 +105,52 @@ export const getActivities = (
       
       resolve(filteredActivities);
     }, 500); // Simulated API delay
+  });
+};
+
+// Get students (mock)
+export const getStudents = (): Promise<User[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(mockStudents);
+    }, 300);
+  });
+};
+
+// Create a new activity (mock)
+export interface CreateActivityParams {
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  createdBy: string;
+}
+
+export const createActivity = (params: CreateActivityParams): Promise<Activity> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newActivity: Activity = {
+        id: `${mockActivities.length + 1}`,
+        title: params.title,
+        description: params.description,
+        startDate: params.startDate,
+        endDate: params.endDate,
+        createdAt: new Date().toISOString(),
+        createdBy: params.createdBy
+      };
+      
+      mockActivities.push(newActivity);
+      resolve(newActivity);
+    }, 500);
+  });
+};
+
+// Get activity by ID (mock)
+export const getActivityById = (id: string): Promise<Activity | undefined> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const activity = mockActivities.find(a => a.id === id);
+      resolve(activity);
+    }, 300);
   });
 };

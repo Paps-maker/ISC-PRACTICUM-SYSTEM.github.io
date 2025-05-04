@@ -12,16 +12,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { Activity } from "@/types";
 import { getActivities } from "@/lib/api";
@@ -30,7 +30,7 @@ import { format } from "date-fns";
 
 const ActivityList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateRange, setDateRange] = useState<undefined | {
+  const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
   }>({ from: undefined, to: undefined });
@@ -62,6 +62,9 @@ const ActivityList: React.FC = () => {
     <div className="container mx-auto py-10">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Activities</h1>
+        <Button variant="outline" onClick={() => window.print()}>
+          <span className="mr-2">Print</span>
+        </Button>
       </div>
 
       <Card className="mb-5">
@@ -79,7 +82,11 @@ const ActivityList: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <CalendarDateRangePicker onDateChange={setDateRange} />
+            <CalendarDateRangePicker onDateChange={(range) => {
+              if (range) {
+                setDateRange(range);
+              }
+            }} />
           </div>
         </CardContent>
       </Card>
