@@ -18,6 +18,7 @@ export interface Activity {
   description: string;
   startDate: string;
   endDate: string;
+  deadline?: string; // Adding deadline property as optional
   createdAt: string;
   createdBy: string;
 }
