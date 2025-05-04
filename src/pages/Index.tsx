@@ -55,16 +55,35 @@ const Index: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-secondary/5">
+      {/* University Image Banner */}
+      <div className="w-full max-h-96 overflow-hidden relative">
+        <img 
+          src="/lovable-uploads/04f2854b-59c7-4491-aac7-92d59c799908.png" 
+          alt="University of Eastern Africa, Baraton" 
+          className="w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 drop-shadow-lg">
+              ISC Student Practicum Management System
+            </h1>
+            <p className="text-xl md:text-2xl drop-shadow-md">
+              University of Eastern Africa, Baraton
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4">
+      <section className="pt-16 pb-12 px-4">
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            ISC Student Practicum Management System
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            A comprehensive platform for managing, submitting, and evaluating student practicums
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Comprehensive Practicum Management
+          </h2>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            A platform for managing, submitting, and evaluating student practicums
           </p>
-          <div className="flex justify-center gap-4 mt-8">
+          <div className="flex justify-center gap-4 mt-6">
             {isAuthenticated ? (
               <Link to={getDashboardLink()}>
                 <Button size="lg" className="px-8">
