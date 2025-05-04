@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -24,8 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useQuery } from "@tanstack/react-query";
 import { Activity } from "@/types";
 import { getActivities } from "@/lib/api";
-import { CalendarDateRangePicker } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
+import { CalendarDateRangePicker } from "@/components/ui/calendar-date-range";
 import { format } from "date-fns";
 
 const ActivityList: React.FC = () => {
