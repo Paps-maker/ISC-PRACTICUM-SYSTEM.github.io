@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,13 +26,11 @@ import { Activity } from "@/types";
 import { getActivities } from "@/lib/api";
 import { CalendarDateRangePicker } from "@/components/ui/calendar-date-range";
 import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 const ActivityList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({ from: undefined, to: undefined });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
   const { data: activities, isLoading, isError } = useQuery(
     {
@@ -83,9 +80,7 @@ const ActivityList: React.FC = () => {
               />
             </div>
             <CalendarDateRangePicker onDateChange={(range) => {
-              if (range) {
-                setDateRange(range);
-              }
+              setDateRange(range);
             }} />
           </div>
         </CardContent>
