@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+
+import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,9 +20,9 @@ import StudentList from "@/pages/students/StudentList";
 import NotFound from "@/pages/NotFound";
 
 function App() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
-  useEffect(() => {
+  React.useEffect(() => {
     document.documentElement.classList.add("antialiased");
   }, []);
 
@@ -41,6 +42,17 @@ function App() {
       return <div>Loading...</div>; // Show a loading indicator
     }
     if (isAuthenticated) {
+      // Redirect to appropriate dashboard based on role
+      if (user) {
+        switch (user.role) {
+          case "student":
+            return <Navigate to="/dashboard" />;
+          case "instructor":
+            return <Navigate to="/instructor/dashboard" />;
+          case "supervisor":
+            return <Navigate to="/supervisor/dashboard" />;
+        }
+      }
       return <Navigate to="/dashboard" />;
     }
     return <>{children}</>;
@@ -131,7 +143,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/students" element={<StudentList />} />
+          <Route 
+            path="/students" 
+            element={
+              <ProtectedRoute>
+                <StudentList />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

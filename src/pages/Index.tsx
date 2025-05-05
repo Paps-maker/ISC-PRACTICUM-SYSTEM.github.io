@@ -13,11 +13,11 @@ const Index: React.FC = () => {
     
     switch (user.role) {
       case UserRole.Student:
-        return "/dashboard/student";
+        return "/dashboard";
       case UserRole.Instructor:
-        return "/dashboard/instructor";
+        return "/instructor/dashboard";
       case UserRole.Supervisor:
-        return "/dashboard/supervisor";
+        return "/supervisor/dashboard";
       default:
         return "/login";
     }
