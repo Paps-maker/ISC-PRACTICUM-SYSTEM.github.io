@@ -116,10 +116,10 @@ function App() {
             }
           />
           <Route
-            path="/submissions/new"
+            path="/submissions/new/:activityId"
             element={
               <ProtectedRoute>
-                <SubmissionForm />
+                <SubmissionForm activityId="1" />
               </ProtectedRoute>
             }
           />

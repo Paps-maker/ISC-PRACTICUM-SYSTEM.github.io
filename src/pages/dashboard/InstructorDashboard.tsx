@@ -1,181 +1,81 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission, User, UserRole } from "@/types";
-import SummaryStats from "@/components/dashboard/SummaryStats";
-import QuickActions from "@/components/dashboard/QuickActions";
-import RecentActivities from "@/components/dashboard/RecentActivities";
-import StudentProgress from "@/components/dashboard/StudentProgress";
-import RecentSubmissions from "@/components/dashboard/RecentSubmissions";
-import { Plus, users } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DashboardCardProps } from "@/types";
+import { Plus, Users } from "lucide-react";
 
 const InstructorDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [students, setStudents] = useState<User[]>([]);
-
-  // Mock data fetch
-  useEffect(() => {
-    // Simulate fetching activities
-    const mockActivities: Activity[] = [
-      {
-        id: "1",
-        title: "Week 1: Company Introduction",
-        description: "Write a brief introduction about the company you are interning with.",
-        startDate: "2025-06-03T10:00:00Z",
-        endDate: "2025-06-10T23:59:59Z",
-        deadline: "2025-06-10T23:59:59Z",
-        createdAt: "2025-05-01T10:00:00Z",
-        createdBy: user?.id || "2"
-      },
-      {
-        id: "2",
-        title: "Week 2: Department Overview",
-        description: "Describe the department you are working in and its role within the company.",
-        startDate: "2025-06-10T10:00:00Z",
-        endDate: "2025-06-17T23:59:59Z",
-        deadline: "2025-06-17T23:59:59Z",
-        createdAt: "2025-05-01T10:05:00Z",
-        createdBy: user?.id || "2"
-      },
-      {
-        id: "3",
-        title: "Week 3: Daily Tasks Analysis",
-        description: "Document and analyze the daily tasks you are performing.",
-        startDate: "2025-06-17T10:00:00Z",
-        endDate: "2025-06-24T23:59:59Z",
-        deadline: "2025-06-24T23:59:59Z",
-        createdAt: "2025-05-01T10:10:00Z",
-        createdBy: user?.id || "2"
-      }
-    ];
-
-    // Simulate fetching students
-    const mockStudents: User[] = [
-      {
-        id: "1",
-        name: "John Student",
-        email: "student@example.com",
-        role: UserRole.Student
-      },
-      {
-        id: "4",
-        name: "Emma Johnson",
-        email: "emma@example.com",
-        role: UserRole.Student
-      },
-      {
-        id: "5",
-        name: "Michael Smith",
-        email: "michael@example.com",
-        role: UserRole.Student
-      },
-      {
-        id: "6",
-        name: "Sophia Williams",
-        email: "sophia@example.com",
-        role: UserRole.Student
-      }
-    ];
-
-    // Simulate fetching submissions
-    const mockSubmissions: Submission[] = [
-      {
-        id: "1",
-        activityId: "1",
-        studentId: "1",
-        fileName: "company_intro.pdf",
-        fileUrl: "#",
-        submittedAt: "2025-06-08T14:30:00Z",
-        status: "reviewed"
-      },
-      {
-        id: "2",
-        activityId: "1",
-        studentId: "4",
-        fileName: "company_intro_emma.pdf",
-        fileUrl: "#",
-        submittedAt: "2025-06-09T10:15:00Z",
-        status: "pending"
-      },
-      {
-        id: "3",
-        activityId: "2",
-        studentId: "5",
-        fileName: "department_overview.docx",
-        fileUrl: "#",
-        submittedAt: "2025-06-15T16:45:00Z",
-        status: "pending"
-      }
-    ];
-
-    setActivities(mockActivities);
-    setStudents(mockStudents);
-    setSubmissions(mockSubmissions);
-  }, [user]);
+  const cards: DashboardCardProps[] = [
+    {
+      title: "Manage Activities",
+      subtitle: "Create, edit, and view practicum activities",
+      content: (
+        <p>
+          Oversee all activities assigned to students. Ensure activities are well-defined and aligned with learning objectives.
+        </p>
+      ),
+      footer: (
+        <Link to="/activities/create">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Create Activity
+          </Button>
+        </Link>
+      ),
+    },
+    {
+      title: "View Submissions",
+      subtitle: "Review and evaluate student submissions",
+      content: (
+        <p>
+          Access a list of student submissions for each activity. Provide feedback and grades to evaluate student performance.
+        </p>
+      ),
+      footer: (
+        <Link to="/submissions">
+          <Button>View Submissions</Button>
+        </Link>
+      ),
+    },
+    {
+      title: "Manage Students",
+      subtitle: "View and manage student accounts",
+      content: (
+        <p>
+          View a list of registered students. Manage student accounts and ensure all students have access to the necessary resources.
+        </p>
+      ),
+      footer: (
+        <Link to="/students">
+          <Button>
+            <Users className="mr-2 h-4 w-4" /> View Students
+          </Button>
+        </Link>
+      ),
+    },
+  ];
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Instructor Dashboard</h1>
-          <p className="text-muted-foreground">
-            Manage practicum activities and monitor student progress
-          </p>
-        </div>
-        <div className="mt-4 md:mt-0 flex gap-2">
-          <Link to="/students">
-            <Button variant="outline">
-              <users size={18} className="mr-2" />
-              View Students
-            </Button>
-          </Link>
-          <Link to="/activities/create">
-            <Button>
-              <Plus size={18} className="mr-2" />
-              Create New Activity
-            </Button>
-          </Link>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Instructor Dashboard</h1>
+        <p className="text-muted-foreground">
+          Manage practicum activities, submissions, and students
+        </p>
       </div>
 
-      {/* Summary Stats */}
-      <SummaryStats 
-        activities={activities} 
-        students={students} 
-        submissions={submissions} 
-      />
-
-      {/* Quick Actions */}
-      <QuickActions />
-
-      {/* Recent Activities and Student Progress */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6">
-        <div className="w-full lg:w-2/3">
-          <RecentActivities 
-            activities={activities}
-            submissions={submissions}
-            students={students}
-          />
-        </div>
-
-        <div className="w-full lg:w-1/3">
-          <StudentProgress
-            students={students}
-            activities={activities}
-            submissions={submissions}
-          />
-        </div>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {cards.map((card, index) => (
+          <Card key={index} className="h-full">
+            <CardHeader>
+              <CardTitle>{card.title}</CardTitle>
+              <CardDescription>{card.subtitle}</CardDescription>
+            </CardHeader>
+            <CardContent>{card.content}</CardContent>
+            {card.footer && <CardContent>{card.footer}</CardContent>}
+          </Card>
+        ))}
       </div>
-
-      {/* Recent Submissions */}
-      <RecentSubmissions
-        submissions={submissions}
-        activities={activities}
-        students={students}
-      />
     </div>
   );
 };
