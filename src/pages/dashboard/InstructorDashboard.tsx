@@ -9,6 +9,7 @@ import QuickActions from "@/components/dashboard/QuickActions";
 import RecentActivities from "@/components/dashboard/RecentActivities";
 import StudentProgress from "@/components/dashboard/StudentProgress";
 import RecentSubmissions from "@/components/dashboard/RecentSubmissions";
+import { Plus } from "lucide-react";
 
 const InstructorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ const InstructorDashboard: React.FC = () => {
         description: "Write a brief introduction about the company you are interning with.",
         startDate: "2025-06-03T10:00:00Z",
         endDate: "2025-06-10T23:59:59Z",
+        deadline: "2025-06-10T23:59:59Z",
         createdAt: "2025-05-01T10:00:00Z",
         createdBy: user?.id || "2"
       },
@@ -35,6 +37,7 @@ const InstructorDashboard: React.FC = () => {
         description: "Describe the department you are working in and its role within the company.",
         startDate: "2025-06-10T10:00:00Z",
         endDate: "2025-06-17T23:59:59Z",
+        deadline: "2025-06-17T23:59:59Z",
         createdAt: "2025-05-01T10:05:00Z",
         createdBy: user?.id || "2"
       },
@@ -44,6 +47,7 @@ const InstructorDashboard: React.FC = () => {
         description: "Document and analyze the daily tasks you are performing.",
         startDate: "2025-06-17T10:00:00Z",
         endDate: "2025-06-24T23:59:59Z",
+        deadline: "2025-06-24T23:59:59Z",
         createdAt: "2025-05-01T10:10:00Z",
         createdBy: user?.id || "2"
       }
