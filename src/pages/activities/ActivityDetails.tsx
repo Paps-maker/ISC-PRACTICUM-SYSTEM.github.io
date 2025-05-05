@@ -33,6 +33,8 @@ const ActivityDetails: React.FC = () => {
         id: activityId || "1",
         title: "Week 1: Company Introduction",
         description: "Write a brief introduction about the company you are interning with. Include the company's history, mission, vision, and core values. Describe the industry in which the company operates and its market position. Also, mention the products or services offered by the company.",
+        startDate: "2025-06-03T10:00:00Z",
+        endDate: "2025-06-10T23:59:59Z",
         deadline: "2025-06-10T23:59:59Z",
         createdAt: "2025-05-01T10:00:00Z",
         createdBy: "2"

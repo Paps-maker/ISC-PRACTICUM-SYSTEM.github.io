@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import QuickActions from "@/components/dashboard/QuickActions";
 import RecentActivities from "@/components/dashboard/RecentActivities";
 import StudentProgress from "@/components/dashboard/StudentProgress";
 import RecentSubmissions from "@/components/dashboard/RecentSubmissions";
-import { Plus } from "lucide-react";
+import { Plus, users } from "lucide-react";
 
 const InstructorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -126,7 +125,13 @@ const InstructorDashboard: React.FC = () => {
             Manage practicum activities and monitor student progress
           </p>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 flex gap-2">
+          <Link to="/students">
+            <Button variant="outline">
+              <users size={18} className="mr-2" />
+              View Students
+            </Button>
+          </Link>
           <Link to="/activities/create">
             <Button>
               <Plus size={18} className="mr-2" />
