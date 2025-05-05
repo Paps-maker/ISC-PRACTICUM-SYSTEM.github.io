@@ -1,4 +1,5 @@
 
+
 export enum UserRole {
   Student = "student",
   Instructor = "instructor",
@@ -10,6 +11,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  registrationDate?: string; // Adding registrationDate property as optional
 }
 
 export interface Activity {
@@ -27,9 +29,11 @@ export interface Submission {
   id: string;
   activityId: string;
   studentId: string;
-  fileName: string;
+  fileName?: string; // Making fileName optional
   fileUrl: string;
   submittedAt: string;
+  feedback?: string; // Adding feedback property as optional
+  grade?: number; // Adding grade property as optional
   status: "pending" | "reviewed";
 }
 
@@ -68,3 +72,4 @@ export interface FileUploadProps {
   acceptedFileTypes?: string;
   maxSize?: number;
 }
+
