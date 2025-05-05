@@ -1,192 +1,170 @@
 
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useRef } from "react";
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableRow, 
+  TableHead, 
+  TableCell 
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Users, Printer, Search } from "lucide-react";
-import { User, UserRole } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, Printer, UserPlus, Users } from "lucide-react";
+import { UserRole } from "@/types";
+
+// Mock student data
+const mockStudents = [
+  { 
+    id: "1", 
+    name: "John Student", 
+    email: "student@example.com", 
+    role: UserRole.Student,
+    registrationDate: "2025-01-15"
+  },
+  { 
+    id: "4", 
+    name: "Alice Cooper", 
+    email: "alice@example.com", 
+    role: UserRole.Student,
+    registrationDate: "2025-02-10"
+  },
+  { 
+    id: "5", 
+    name: "Bob Johnson", 
+    email: "bob@example.com", 
+    role: UserRole.Student,
+    registrationDate: "2025-02-15"
+  },
+  { 
+    id: "6", 
+    name: "Carol White", 
+    email: "carol@example.com", 
+    role: UserRole.Student,
+    registrationDate: "2025-03-01"
+  },
+  { 
+    id: "7", 
+    name: "Dave Brown", 
+    email: "dave@example.com", 
+    role: UserRole.Student,
+    registrationDate: "2025-03-10"
+  },
+];
 
 const StudentList: React.FC = () => {
-  const [students, setStudents] = useState<User[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredStudents, setFilteredStudents] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Mock data loading
-    setLoading(true);
-    setTimeout(() => {
-      const mockStudents: User[] = [
-        {
-          id: "1",
-          name: "John Smith",
-          email: "johnsmith@example.com",
-          role: UserRole.Student
-        },
-        {
-          id: "2",
-          name: "Emily Johnson",
-          email: "emilyjohnson@example.com",
-          role: UserRole.Student
-        },
-        {
-          id: "3",
-          name: "Michael Brown",
-          email: "michaelbrown@example.com",
-          role: UserRole.Student
-        },
-        {
-          id: "4",
-          name: "Sarah Davis",
-          email: "sarahdavis@example.com",
-          role: UserRole.Student
-        },
-        {
-          id: "5",
-          name: "David Wilson",
-          email: "davidwilson@example.com",
-          role: UserRole.Student
-        }
-      ];
-      
-      setStudents(mockStudents);
-      setFilteredStudents(mockStudents);
-      setLoading(false);
-    }, 800);
-  }, []);
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredStudents(students);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = students.filter(
-        (student) =>
-          student.name.toLowerCase().includes(query) ||
-          student.email.toLowerCase().includes(query)
-      );
-      setFilteredStudents(filtered);
-    }
-  }, [searchQuery, students]);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const printRef = useRef<HTMLDivElement>(null);
+  
+  const filteredStudents = mockStudents.filter(student => 
+    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
   const handlePrint = () => {
-    window.print();
+    const printWindow = window.open('', '_blank');
+    
+    if (printWindow && printRef.current) {
+      const content = printRef.current.innerHTML;
+      
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Registered Students</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              table { border-collapse: collapse; width: 100%; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+              h1 { text-align: center; }
+            </style>
+          </head>
+          <body>
+            <h1>Registered Students</h1>
+            ${content}
+          </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
   };
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Students</h1>
-          <p className="text-muted-foreground">Manage registered students</p>
+          <h1 className="text-3xl font-bold">Registered Students</h1>
+          <p className="text-muted-foreground">Manage and view all registered students</p>
         </div>
-        <Button onClick={handlePrint} className="mt-4 sm:mt-0 print:hidden">
-          <Printer className="mr-2 h-4 w-4" /> Print List
-        </Button>
-      </div>
-
-      <div className="mb-6 print:hidden">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search by name or email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handlePrint}>
+            <Printer className="mr-2 h-4 w-4" />
+            Print
+          </Button>
+          <Button>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Student
+          </Button>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        {loading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4">Loading students...</p>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center">
+              <Users className="mr-2 h-5 w-5" />
+              <span>Students</span>
+              <span className="ml-2 text-sm text-muted-foreground font-normal">
+                ({filteredStudents.length})
+              </span>
+            </CardTitle>
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search students..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-        ) : (
-          <Table>
-            <TableCaption>List of registered students</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        {student.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>{student.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{student.role}</Badge>
+        </CardHeader>
+        <CardContent>
+          <div ref={printRef}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Registration Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.length > 0 ? (
+                  filteredStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">{student.name}</TableCell>
+                      <TableCell>{student.email}</TableCell>
+                      <TableCell>{new Date(student.registrationDate).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                      No students found
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8">
-                    {searchQuery ? (
-                      <div className="text-muted-foreground">
-                        No students found matching "{searchQuery}"
-                      </div>
-                    ) : (
-                      <div className="text-muted-foreground">
-                        No students registered yet
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
-      </div>
-
-      <style jsx global>
-        {`
-          @media print {
-            body {
-              font-size: 12pt;
-            }
-            .container {
-              width: 100%;
-              max-width: 100%;
-              padding: 0;
-            }
-            h1 {
-              font-size: 18pt;
-              margin-bottom: 10pt;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 8pt;
-              text-align: left;
-              border-bottom: 1pt solid #ddd;
-            }
-          }
-        `}
-      </style>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
