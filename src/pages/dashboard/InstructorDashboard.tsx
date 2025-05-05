@@ -173,6 +173,16 @@ const InstructorDashboard: React.FC = () => {
       {/* Quick Actions */}
       <QuickActions />
 
+      {/* Added Student List Button */}
+      <div className="flex justify-end mb-6">
+        <Link to="/students">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            View Registered Students
+          </Button>
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Recent Activities */}
         <RecentActivities 
