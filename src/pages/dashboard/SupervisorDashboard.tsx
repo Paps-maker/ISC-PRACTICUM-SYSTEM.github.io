@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -154,16 +155,6 @@ const SupervisorDashboard: React.FC = () => {
         <p className="text-muted-foreground">
           Track student progress and manage practicum evaluations
         </p>
-      </div>
-
-      {/* Added Student List Button */}
-      <div className="flex justify-end mb-6">
-        <Link to="/students">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            View Registered Students
-          </Button>
-        </Link>
       </div>
 
       {/* Summary Stats */}
