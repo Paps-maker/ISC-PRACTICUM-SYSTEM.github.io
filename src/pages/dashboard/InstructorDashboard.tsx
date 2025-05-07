@@ -52,22 +52,19 @@ const InstructorDashboard: React.FC = () => {
       id: "1", 
       name: "John Student", 
       email: "student@example.com", 
-      role: UserRole.Student,
-      registrationDate: "2025-01-15"
+      role: UserRole.Student
     },
     { 
       id: "4", 
       name: "Alice Cooper", 
       email: "alice@example.com", 
-      role: UserRole.Student,
-      registrationDate: "2025-02-10"
+      role: UserRole.Student
     },
     { 
       id: "5", 
       name: "Bob Johnson", 
       email: "bob@example.com", 
-      role: UserRole.Student,
-      registrationDate: "2025-02-15"
+      role: UserRole.Student
     },
   ];
 
@@ -76,30 +73,27 @@ const InstructorDashboard: React.FC = () => {
       id: "1",
       activityId: "1",
       studentId: "1",
+      fileName: "file1.pdf",
       fileUrl: "https://example.com/file1.pdf",
       submittedAt: "2025-06-05T15:30:00Z",
-      feedback: null,
-      grade: null,
       status: "pending"
     },
     {
       id: "2",
       activityId: "1",
       studentId: "4",
+      fileName: "file2.pdf",
       fileUrl: "https://example.com/file2.pdf",
       submittedAt: "2025-06-06T10:45:00Z",
-      feedback: "Great work!",
-      grade: 85,
       status: "reviewed"
     },
     {
       id: "3",
       activityId: "2",
       studentId: "5",
+      fileName: "file3.pdf",
       fileUrl: "https://example.com/file3.pdf",
       submittedAt: "2025-06-12T09:20:00Z",
-      feedback: null,
-      grade: null,
       status: "pending"
     }
   ];
