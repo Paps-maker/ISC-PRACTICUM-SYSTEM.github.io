@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, List } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const Index = () => {
   return (
@@ -18,12 +18,6 @@ const Index = () => {
             <Button size="lg">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
-          <Link to="/students">
-            <Button variant="outline" size="lg">
-              <List className="mr-2 h-5 w-5" />
-              View Registered Students
             </Button>
           </Link>
         </div>
