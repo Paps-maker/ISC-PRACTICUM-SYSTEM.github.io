@@ -74,7 +74,7 @@ const Index: React.FC = () => {
         </div>
       </div>
 
-      {/* Hero Section with Prominent Login/Register Buttons */}
+      {/* Hero Section */}
       <section className="pt-16 pb-12 px-4">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -83,33 +83,28 @@ const Index: React.FC = () => {
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             A platform for managing, submitting, and evaluating student practicums
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          <div className="flex justify-center gap-4 mt-6">
             {isAuthenticated ? (
               <Link to={getDashboardLink()}>
-                <Button size="lg" className="px-8 w-full sm:w-auto">
+                <Button size="lg" className="px-8">
                   Go to Dashboard
                 </Button>
               </Link>
             ) : (
               <>
-                <Link to="/login" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="px-8 w-full">
+                <Link to="/login">
+                  <Button size="lg" variant="outline" className="px-8">
                     Login
                   </Button>
                 </Link>
-                <Link to="/register" className="w-full sm:w-auto">
-                  <Button size="lg" className="px-8 w-full">
+                <Link to="/register">
+                  <Button size="lg" className="px-8">
                     Register
                   </Button>
                 </Link>
               </>
             )}
           </div>
-          {!isAuthenticated && (
-            <p className="mt-4 text-muted-foreground">
-              Register as a Student, Instructor, or Supervisor to access the platform
-            </p>
-          )}
         </div>
       </section>
 
@@ -151,28 +146,19 @@ const Index: React.FC = () => {
           <p className="text-xl text-muted-foreground mb-8">
             Join our platform to simplify your practicum management experience
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            {isAuthenticated ? (
-              <Link to={getDashboardLink()}>
-                <Button size="lg" className="px-8 w-full">
-                  Go to Dashboard
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link to="/login" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="px-8 w-full">
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/register" className="w-full sm:w-auto">
-                  <Button size="lg" className="px-8 w-full">
-                    Register
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+          {isAuthenticated ? (
+            <Link to={getDashboardLink()}>
+              <Button size="lg" className="px-8">
+                Go to Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/register">
+              <Button size="lg" className="px-8">
+                Get Started
+              </Button>
+            </Link>
+          )}
         </div>
       </section>
     </div>

@@ -3,8 +3,6 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserRole } from "@/types";
-import NavBar from "@/components/layout/NavBar";
 
 // Page imports
 import Index from "@/pages/Index";
@@ -31,7 +29,7 @@ function App() {
   // Protect routes
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (loading) {
-      return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+      return <div>Loading...</div>; // Show a loading indicator
     }
     if (!isAuthenticated) {
       return <Navigate to="/login" />;
@@ -39,39 +37,19 @@ function App() {
     return <>{children}</>;
   };
 
-  // Role-based routes
-  const RoleRoute = ({ 
-    children, 
-    allowedRoles 
-  }: { 
-    children: React.ReactNode, 
-    allowedRoles: UserRole[] 
-  }) => {
-    if (loading) {
-      return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-    }
-    if (!isAuthenticated) {
-      return <Navigate to="/login" />;
-    }
-    if (user && allowedRoles.includes(user.role)) {
-      return <>{children}</>;
-    }
-    return <Navigate to="/dashboard" />;
-  };
-
   const AuthRoute = ({ children }: { children: React.ReactNode }) => {
     if (loading) {
-      return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+      return <div>Loading...</div>; // Show a loading indicator
     }
     if (isAuthenticated) {
       // Redirect to appropriate dashboard based on role
       if (user) {
         switch (user.role) {
-          case UserRole.Student:
+          case "student":
             return <Navigate to="/dashboard" />;
-          case UserRole.Instructor:
+          case "instructor":
             return <Navigate to="/instructor/dashboard" />;
-          case UserRole.Supervisor:
+          case "supervisor":
             return <Navigate to="/supervisor/dashboard" />;
         }
       }
@@ -83,101 +61,98 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Router>
-        <NavBar />
-        <div className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route
-              path="/login"
-              element={
-                <AuthRoute>
-                  <Login />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <AuthRoute>
-                  <Register />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/instructor/dashboard"
-              element={
-                <RoleRoute allowedRoles={[UserRole.Instructor]}>
-                  <InstructorDashboard />
-                </RoleRoute>
-              }
-            />
-            <Route
-              path="/supervisor/dashboard"
-              element={
-                <RoleRoute allowedRoles={[UserRole.Supervisor]}>
-                  <SupervisorDashboard />
-                </RoleRoute>
-              }
-            />
-            <Route
-              path="/activities"
-              element={
-                <ProtectedRoute>
-                  <ActivityList />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/activities/create"
-              element={
-                <RoleRoute allowedRoles={[UserRole.Instructor]}>
-                  <ActivityForm />
-                </RoleRoute>
-              }
-            />
-            <Route
-              path="/activities/:activityId"
-              element={
-                <ProtectedRoute>
-                  <ActivityDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/submissions/new/:activityId"
-              element={
-                <RoleRoute allowedRoles={[UserRole.Student]}>
-                  <SubmissionForm activityId="1" />
-                </RoleRoute>
-              }
-            />
-            <Route
-              path="/submissions"
-              element={
-                <ProtectedRoute>
-                  <SubmissionList />
-                </ProtectedRoute>
-              }
-            />
-            <Route 
-              path="/students" 
-              element={
-                <RoleRoute allowedRoles={[UserRole.Instructor, UserRole.Supervisor]}>
-                  <StudentList />
-                </RoleRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route
+            path="/login"
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <AuthRoute>
+                <Register />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/instructor/dashboard"
+            element={
+              <ProtectedRoute>
+                <InstructorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervisor/dashboard"
+            element={
+              <ProtectedRoute>
+                <SupervisorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activities"
+            element={
+              <ProtectedRoute>
+                <ActivityList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activities/create"
+            element={
+              <ProtectedRoute>
+                <ActivityForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activities/:activityId"
+            element={
+              <ProtectedRoute>
+                <ActivityDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submissions/new/:activityId"
+            element={
+              <ProtectedRoute>
+                <SubmissionForm activityId="1" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submissions"
+            element={
+              <ProtectedRoute>
+                <SubmissionList />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/students" 
+            element={
+              <ProtectedRoute>
+                <StudentList />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Router>
       <Toaster />
     </div>

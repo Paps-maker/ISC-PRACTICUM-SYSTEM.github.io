@@ -13,11 +13,11 @@ const NavBar: React.FC = () => {
     
     switch (user.role) {
       case UserRole.Student:
-        return "/dashboard";
+        return "/dashboard/student";
       case UserRole.Instructor:
-        return "/instructor/dashboard";
+        return "/dashboard/instructor";
       case UserRole.Supervisor:
-        return "/supervisor/dashboard";
+        return "/dashboard/supervisor";
       default:
         return "/";
     }

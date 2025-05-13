@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   // Demo account quick login
@@ -83,26 +83,6 @@ const Login: React.FC = () => {
         title: "Login successful",
         description: "You have been logged in successfully",
       });
-      
-      // Redirect based on user role
-      if (user) {
-        switch (user.role) {
-          case UserRole.Student:
-            navigate("/dashboard");
-            break;
-          case UserRole.Instructor:
-            navigate("/instructor/dashboard");
-            break;
-          case UserRole.Supervisor:
-            navigate("/supervisor/dashboard");
-            break;
-          default:
-            navigate("/dashboard");
-        }
-      } else {
-        // Fallback redirect
-        navigate("/dashboard");
-      }
     } catch (error) {
       toast({
         variant: "destructive",

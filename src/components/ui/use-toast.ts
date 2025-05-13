@@ -1,11 +1,3 @@
-
-import { useToast } from "@/hooks/use-toast";
-
-// Export a toast function that provides a simpler API
-const toast = (props: any) => {
-  // This implementation will work with the hook approach
-  const { toast: hookToast } = useToast();
-  return hookToast(props);
-};
+import { useToast, toast } from "@/hooks/use-toast";
 
 export { useToast, toast };
