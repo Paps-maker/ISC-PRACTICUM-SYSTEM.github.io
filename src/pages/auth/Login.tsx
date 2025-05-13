@@ -49,7 +49,7 @@ const Login: React.FC = () => {
         description: `You are now logged in as ${role}`,
       });
       
-      // Redirect to the appropriate dashboard
+      // Navigate to the correct dashboard path based on role
       navigate(`/dashboard/${role}`);
     } catch (error) {
       toast({
@@ -74,8 +74,8 @@ const Login: React.FC = () => {
         description: "You have been logged in successfully",
       });
       
-      // Auth context will determine the proper redirect
-      navigate("/");
+      // The routing is handled by AuthRoute in App.tsx
+      navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",

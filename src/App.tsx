@@ -47,16 +47,32 @@ function App() {
       if (user) {
         switch (user.role) {
           case "student":
-            return <Navigate to="/dashboard" />;
+            return <Navigate to="/dashboard/student" />;
           case "instructor":
-            return <Navigate to="/instructor/dashboard" />;
+            return <Navigate to="/dashboard/instructor" />;
           case "supervisor":
-            return <Navigate to="/supervisor/dashboard" />;
+            return <Navigate to="/dashboard/supervisor" />;
         }
       }
       return <Navigate to="/dashboard" />;
     }
     return <>{children}</>;
+  };
+
+  // Get dashboard component based on role
+  const DashboardRedirect = () => {
+    if (!user) return <Navigate to="/login" />;
+    
+    switch (user.role) {
+      case "student":
+        return <Navigate to="/dashboard/student" />;
+      case "instructor":
+        return <Navigate to="/dashboard/instructor" />;
+      case "supervisor":
+        return <Navigate to="/dashboard/supervisor" />;
+      default:
+        return <Navigate to="/login" />;
+    }
   };
 
   return (
@@ -81,8 +97,20 @@ function App() {
               </AuthRoute>
             }
           />
+          
+          {/* Dashboard redirect based on role */}
           <Route
             path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardRedirect />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Role-specific dashboards */}
+          <Route
+            path="/dashboard/student"
             element={
               <ProtectedRoute>
                 <StudentDashboard />
@@ -90,7 +118,7 @@ function App() {
             }
           />
           <Route
-            path="/instructor/dashboard"
+            path="/dashboard/instructor"
             element={
               <ProtectedRoute>
                 <InstructorDashboard />
@@ -98,13 +126,14 @@ function App() {
             }
           />
           <Route
-            path="/supervisor/dashboard"
+            path="/dashboard/supervisor"
             element={
               <ProtectedRoute>
                 <SupervisorDashboard />
               </ProtectedRoute>
             }
           />
+          
           <Route
             path="/activities"
             element={
