@@ -1,4 +1,3 @@
-
 import * as React from "react"
 
 import {
@@ -112,10 +111,8 @@ const reducer = (state: State, action: Action): State => {
   }
 }
 
-// Creating a React Context to store the dispatch function
-const DispatchContext = React.createContext<React.Dispatch<Action> | undefined>(
-  undefined
-)
+// Creating a global variable to store active dispatch
+let dispatchToast: React.Dispatch<Action> | null = null;
 
 function setDismissed(id: string) {
   if (toastTimeouts.has(id)) {
@@ -126,14 +123,10 @@ function setDismissed(id: string) {
     id,
     setTimeout(() => {
       toastTimeouts.delete(id)
-      // Use the context to get dispatch
-      const dispatch = React.useContext(DispatchContext)
-      if (dispatch) {
-        dispatch({
-          type: "REMOVE_TOAST",
-          toastId: id,
-        })
-      }
+      dispatchToast && dispatchToast({
+        type: "REMOVE_TOAST",
+        toastId: id,
+      })
     }, TOAST_REMOVE_DELAY)
   )
 }
@@ -151,6 +144,11 @@ const initialState: State = { toasts: [] }
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = React.useReducer(reducer, initialState)
   
+  // Store the dispatch function in our global variable
+  React.useEffect(() => {
+    dispatchToast = dispatch
+  }, [])
+
   const toast = React.useCallback((props: Omit<ToasterToast, "id">) => {
     const id = genId()
     const newToast = { id, ...props }
@@ -180,11 +178,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <DispatchContext.Provider value={dispatch}>
-      <ToastContext.Provider value={value}>
-        {children}
-      </ToastContext.Provider>
-    </DispatchContext.Provider>
+    <ToastContext.Provider value={value}>
+      {children}
+    </ToastContext.Provider>
   )
 }
 
@@ -198,17 +194,14 @@ export const useToast = () => {
   return context
 }
 
-// We need to modify this to use the DispatchContext
+// Export a simple toast function that can be used anywhere
 export const toast = (props: Omit<ToasterToast, "id">) => {
-  // This will only work if called from within a component under ToastProvider
-  // For global usage, we need a different approach
-  const dispatch = React.useContext(DispatchContext)
-  if (!dispatch) {
-    console.error("toast() called outside of ToastProvider context")
-    return
+  if (!dispatchToast) {
+    console.warn("Toast used before ToastProvider was initialized")
+    return;
   }
   
-  dispatch({
+  dispatchToast({
     type: "ADD_TOAST",
     toast: {
       ...props,
