@@ -49,18 +49,8 @@ const Login: React.FC = () => {
         description: `You are now logged in as ${role}`,
       });
       
-      // Redirect to the appropriate dashboard based on role
-      switch (role) {
-        case UserRole.Student:
-          navigate("/dashboard");
-          break;
-        case UserRole.Instructor:
-          navigate("/instructor/dashboard");
-          break;
-        case UserRole.Supervisor:
-          navigate("/supervisor/dashboard");
-          break;
-      }
+      // Redirect to the appropriate dashboard
+      navigate(`/dashboard/${role}`);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -83,6 +73,9 @@ const Login: React.FC = () => {
         title: "Login successful",
         description: "You have been logged in successfully",
       });
+      
+      // Auth context will determine the proper redirect
+      navigate("/");
     } catch (error) {
       toast({
         variant: "destructive",

@@ -3,6 +3,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { useAuth } from "@/contexts/AuthContext";
+import NavBar from "@/components/layout/NavBar";
 
 // Page imports
 import Index from "@/pages/Index";
@@ -61,6 +62,7 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Router>
+        <NavBar />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route
