@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import {
@@ -111,6 +112,11 @@ const reducer = (state: State, action: Action): State => {
   }
 }
 
+// Creating a React Context to store the dispatch function
+const DispatchContext = React.createContext<React.Dispatch<Action> | undefined>(
+  undefined
+)
+
 function setDismissed(id: string) {
   if (toastTimeouts.has(id)) {
     clearTimeout(toastTimeouts.get(id))
@@ -120,10 +126,14 @@ function setDismissed(id: string) {
     id,
     setTimeout(() => {
       toastTimeouts.delete(id)
-      dispatch({
-        type: "REMOVE_TOAST",
-        toastId: id,
-      })
+      // Use the context to get dispatch
+      const dispatch = React.useContext(DispatchContext)
+      if (dispatch) {
+        dispatch({
+          type: "REMOVE_TOAST",
+          toastId: id,
+        })
+      }
     }, TOAST_REMOVE_DELAY)
   )
 }
@@ -137,20 +147,15 @@ type ToastContextType = {
 const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
 
 const initialState: State = { toasts: [] }
-const dispatch = React.createRef<React.Dispatch<Action>>()
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [state, _dispatch] = React.useReducer(reducer, initialState)
+  const [state, dispatch] = React.useReducer(reducer, initialState)
   
-  React.useEffect(() => {
-    dispatch.current = _dispatch
-  }, [_dispatch])
-
   const toast = React.useCallback((props: Omit<ToasterToast, "id">) => {
     const id = genId()
     const newToast = { id, ...props }
 
-    dispatch.current?.({
+    dispatch({
       type: "ADD_TOAST",
       toast: newToast,
     })
@@ -159,7 +164,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const dismiss = React.useCallback((toastId?: string) => {
-    dispatch.current?.({
+    dispatch({
       type: "DISMISS_TOAST",
       toastId,
     })
@@ -175,9 +180,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <ToastContext.Provider value={value}>
-      {children}
-    </ToastContext.Provider>
+    <DispatchContext.Provider value={dispatch}>
+      <ToastContext.Provider value={value}>
+        {children}
+      </ToastContext.Provider>
+    </DispatchContext.Provider>
   )
 }
 
@@ -191,8 +198,17 @@ export const useToast = () => {
   return context
 }
 
+// We need to modify this to use the DispatchContext
 export const toast = (props: Omit<ToasterToast, "id">) => {
-  dispatch.current?.({
+  // This will only work if called from within a component under ToastProvider
+  // For global usage, we need a different approach
+  const dispatch = React.useContext(DispatchContext)
+  if (!dispatch) {
+    console.error("toast() called outside of ToastProvider context")
+    return
+  }
+  
+  dispatch({
     type: "ADD_TOAST",
     toast: {
       ...props,
