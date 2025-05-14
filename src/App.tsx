@@ -158,11 +158,12 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Fix the submissions route - changed from nested param to query param */}
           <Route
-            path="/submissions/new/:activityId"
+            path="/submissions/new"
             element={
               <ProtectedRoute>
-                <SubmissionForm activityId="1" />
+                <SubmissionForm activityId="" />
               </ProtectedRoute>
             }
           />
