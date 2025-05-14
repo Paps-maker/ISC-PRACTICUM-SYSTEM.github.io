@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,15 +17,22 @@ import { FileUpload } from "@/components/FileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, SubmissionFormProps } from "@/types";
+import { FileText } from "lucide-react";
 
-const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId }) => {
+const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivityId }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const queryActivityId = searchParams.get('activityId');
   const { user } = useAuth();
   const [fileName, setFileName] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  
+  // Use activityId from props or URL query parameter
+  const activityId = propActivityId || queryActivityId;
 
   useEffect(() => {
     if (!activityId) {
@@ -61,6 +69,11 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId }) => {
   const handleFileSelect = (selectedFile: File) => {
     setFile(selectedFile);
     setFileName(selectedFile.name);
+    
+    toast({
+      title: "File selected",
+      description: `${selectedFile.name} (${(selectedFile.size / (1024 * 1024)).toFixed(2)}MB)`,
+    });
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -76,15 +89,15 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId }) => {
     }
 
     // Simulate submission
-    setLoading(true);
+    setSubmitting(true);
     setTimeout(() => {
       toast({
         title: "Success",
-        description: "Submission successful!",
+        description: "Your report has been submitted successfully!",
       });
-      setLoading(false);
-      navigate("/activities");
-    }, 1000);
+      setSubmitting(false);
+      navigate(`/activities/${activityId}`);
+    }, 1500);
   };
 
   if (loading) {
@@ -92,7 +105,7 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId }) => {
       <div className="container mx-auto p-4 lg:p-6 flex justify-center items-center min-h-[300px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4">Submitting your work...</p>
+          <p className="mt-4">Loading activity details...</p>
         </div>
       </div>
     );
@@ -106,6 +119,9 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId }) => {
           <p className="mt-2 text-muted-foreground">
             The activity you're trying to submit to doesn't exist
           </p>
+          <Button className="mt-4" onClick={() => navigate('/activities')}>
+            Back to Activities
+          </Button>
         </div>
       </div>
     );
@@ -113,27 +129,69 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId }) => {
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
-      <Card>
+      <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle>Submit Your Work</CardTitle>
+          <CardTitle>Submit Your Report</CardTitle>
           <CardDescription>
-            Upload your file for "{activity.title}"
+            Upload your report for "{activity.title}"
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
+        <CardContent className="grid gap-6">
+          <div>
+            <h3 className="text-lg font-medium mb-2">{activity.title}</h3>
+            <p className="text-muted-foreground mb-4">{activity.description}</p>
+          </div>
+          
           <div className="grid gap-2">
-            <Label htmlFor="file">Upload File</Label>
-            <FileUpload onFileSelect={handleFileSelect} />
+            <Label htmlFor="file">Upload Your Report</Label>
+            <FileUpload 
+              onFileSelect={handleFileSelect}
+              acceptedFileTypes=".pdf,.docx,.doc,.jpg,.jpeg" 
+              maxSize={10}
+            />
             {fileName && (
-              <p className="text-sm text-muted-foreground">
-                Selected file: {fileName}
-              </p>
+              <div className="mt-4 p-3 bg-muted rounded-md flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">{fileName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {file && `${(file.size / (1024 * 1024)).toFixed(2)} MB`}
+                  </p>
+                </div>
+              </div>
             )}
           </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="comments">Additional Comments (Optional)</Label>
+            <Textarea
+              id="comments"
+              placeholder="Any comments you'd like to include with your submission..."
+              className="min-h-[100px]"
+            />
+          </div>
         </CardContent>
-        <CardFooter>
-          <Button className="w-full" onClick={handleSubmit} disabled={loading}>
-            {loading ? "Submitting..." : "Submit"}
+        <CardFooter className="flex flex-col gap-4 sm:flex-row sm:justify-end">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(`/activities/${activityId}`)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={submitting || !file}
+            className="w-full sm:w-auto"
+          >
+            {submitting ? (
+              <>
+                <span className="animate-spin mr-2">⭘</span> 
+                Submitting...
+              </>
+            ) : (
+              "Submit Report"
+            )}
           </Button>
         </CardFooter>
       </Card>

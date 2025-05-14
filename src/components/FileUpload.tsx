@@ -2,23 +2,56 @@
 import React, { useState, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   acceptedFileTypes?: string;
+  maxSize?: number; // Size in MB
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileSelect,
-  acceptedFileTypes = ".pdf,.docx,.doc"
+  acceptedFileTypes = ".pdf,.docx,.doc,.jpg,.jpeg",
+  maxSize = 10 // Default 10MB
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onFileSelect(e.target.files[0]);
+      validateAndProcessFile(e.target.files[0]);
     }
+  };
+
+  const validateAndProcessFile = (file: File) => {
+    // Check file size
+    const fileSizeInMB = file.size / (1024 * 1024);
+    if (fileSizeInMB > maxSize) {
+      toast({
+        title: "Error",
+        description: `File size exceeds ${maxSize}MB limit`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file type
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    const allowedExts = acceptedFileTypes
+      .split(',')
+      .map(type => type.replace('.', '').toLowerCase());
+      
+    if (fileExt && !allowedExts.includes(fileExt)) {
+      toast({
+        title: "Error",
+        description: "File type not supported. Please upload a PDF, Word document, or JPG image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    onFileSelect(file);
   };
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
@@ -36,7 +69,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onFileSelect(e.dataTransfer.files[0]);
+      validateAndProcessFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -73,7 +106,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             Drag & drop your file here, or
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            PDF, DOCX or DOC (Max 10MB)
+            PDF, Word document, or JPG (Max {maxSize}MB)
           </p>
         </div>
         <Button
