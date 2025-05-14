@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -19,6 +18,7 @@ import { FileText, Download, Save, ChevronLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Submission, User, UserRole } from "@/types";
+import { BackButton } from "@/components/ui/back-button";
 
 const GradeSubmission: React.FC = () => {
   const navigate = useNavigate();
@@ -122,13 +122,7 @@ const GradeSubmission: React.FC = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <Button 
-        variant="ghost" 
-        onClick={() => navigate("/submissions/grade")}
-        className="mb-6"
-      >
-        <ChevronLeft className="mr-2 h-4 w-4" /> Back to submissions
-      </Button>
+      <BackButton to="/submissions/grade" label="Back to submissions" />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Submission details */}

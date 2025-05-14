@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ import { getActivities } from "@/lib/api";
 import { CalendarDateRangePicker } from "@/components/ui/calendar-date-range";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { BackButton } from "@/components/ui/back-button";
 
 const ActivityList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,6 +59,8 @@ const ActivityList: React.FC = () => {
 
   return (
     <div className="container mx-auto py-10">
+      <BackButton to="/dashboard" label="Back to Dashboard" />
+      
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Activities</h1>
         <Button variant="outline" onClick={() => window.print()}>

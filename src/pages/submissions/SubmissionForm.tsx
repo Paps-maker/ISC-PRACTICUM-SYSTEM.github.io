@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, SubmissionFormProps } from "@/types";
 import { FileText } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivityId }) => {
   const navigate = useNavigate();
@@ -129,6 +130,8 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivit
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to="/activities" label="Back to Activities" />
+      
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle>Submit Your Report</CardTitle>
