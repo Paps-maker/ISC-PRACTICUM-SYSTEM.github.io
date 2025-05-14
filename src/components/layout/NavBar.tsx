@@ -39,7 +39,12 @@ const NavBar: React.FC = () => {
               <span className="text-sm opacity-90">
                 {user?.name} ({user?.role})
               </span>
-              <Button variant="outline" onClick={logout} size="sm">
+              <Button 
+                variant="outline" 
+                onClick={logout} 
+                size="sm"
+                className="text-white hover:text-white font-medium"
+              >
                 Logout
               </Button>
             </>
