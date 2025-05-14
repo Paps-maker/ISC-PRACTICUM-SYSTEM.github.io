@@ -15,8 +15,11 @@ import SupervisorDashboard from "@/pages/dashboard/SupervisorDashboard";
 import ActivityList from "@/pages/activities/ActivityList";
 import ActivityForm from "@/pages/activities/ActivityForm";
 import ActivityDetails from "@/pages/activities/ActivityDetails";
+import ManageActivities from "@/pages/activities/ManageActivities";
 import SubmissionForm from "@/pages/submissions/SubmissionForm";
 import SubmissionList from "@/pages/submissions/SubmissionList";
+import SubmissionsGrade from "@/pages/submissions/SubmissionsGrade";
+import GradeSubmission from "@/pages/submissions/GradeSubmission";
 import StudentList from "@/pages/students/StudentList";
 import NotFound from "@/pages/NotFound";
 
@@ -158,6 +161,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/activities/manage"
+            element={
+              <ProtectedRoute>
+                <ManageActivities />
+              </ProtectedRoute>
+            }
+          />
           {/* Fix the submissions route - changed from nested param to query param */}
           <Route
             path="/submissions/new"
@@ -172,6 +183,23 @@ function App() {
             element={
               <ProtectedRoute>
                 <SubmissionList />
+              </ProtectedRoute>
+            }
+          />
+          {/* Add new routes for grading submissions */}
+          <Route
+            path="/submissions/grade"
+            element={
+              <ProtectedRoute>
+                <SubmissionsGrade />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/submissions/:submissionId/grade"
+            element={
+              <ProtectedRoute>
+                <GradeSubmission />
               </ProtectedRoute>
             }
           />
