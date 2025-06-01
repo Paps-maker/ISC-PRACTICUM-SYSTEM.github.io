@@ -40,10 +40,10 @@ const NavBar: React.FC = () => {
                 {user?.name} ({user?.role})
               </span>
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 onClick={logout} 
                 size="sm"
-                className="text-white hover:text-white font-medium"
+                className="bg-white text-primary hover:bg-gray-100"
               >
                 Logout
               </Button>
@@ -51,12 +51,21 @@ const NavBar: React.FC = () => {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  className="bg-white text-primary hover:bg-gray-100"
+                >
                   Login
                 </Button>
               </Link>
               <Link to="/register">
-                <Button size="sm">Register</Button>
+                <Button 
+                  size="sm"
+                  className="bg-white text-primary hover:bg-gray-100"
+                >
+                  Register
+                </Button>
               </Link>
             </>
           )}
