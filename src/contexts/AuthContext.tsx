@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, UserRole, AuthContextType } from "../types";
 import { studentStore } from "@/stores/studentStore";
 
@@ -109,6 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    // Navigation will be handled by the NavBar component
   };
 
   const value = {

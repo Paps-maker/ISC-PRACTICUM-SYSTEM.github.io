@@ -1,8 +1,10 @@
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  registrationDate?: string;
 }
 
 export enum UserRole {
@@ -39,6 +41,7 @@ export enum SubmissionStatus {
   Pending = "pending",
   Graded = "graded",
   Late = "late",
+  Reviewed = "reviewed",
 }
 
 export interface SubmissionFormProps {
@@ -49,4 +52,29 @@ export interface ManageActivitiesProps {
   activities: Activity[];
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
+  logout: () => void;
+  loading: boolean;
+}
+
+export interface DashboardCardProps {
+  title: string;
+  value: string | number;
+  description?: string;
+  icon?: React.ReactNode;
+}
+
+export interface Evaluation {
+  id: string;
+  submissionId: string;
+  grade: number;
+  feedback: string;
+  evaluatedBy: string;
+  evaluatedAt: string;
 }

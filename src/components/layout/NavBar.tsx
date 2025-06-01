@@ -1,12 +1,13 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types";
 
 const NavBar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const getDashboardUrl = () => {
     if (!user) return "/";
@@ -21,6 +22,11 @@ const NavBar: React.FC = () => {
       default:
         return "/";
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
@@ -41,7 +47,7 @@ const NavBar: React.FC = () => {
               </span>
               <Button 
                 variant="secondary" 
-                onClick={logout} 
+                onClick={handleLogout} 
                 size="sm"
                 className="bg-white text-primary hover:bg-gray-100"
               >
