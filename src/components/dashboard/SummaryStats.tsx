@@ -1,15 +1,28 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardCard from "@/components/dashboard/DashboardCard";
-import { Activity, Submission, User } from "@/types";
+import { Activity, Submission } from "@/types";
+import { studentStore } from "@/stores/studentStore";
 
 interface SummaryStatsProps {
   activities: Activity[];
-  students: User[];
+  students?: never; // Remove students prop since we'll get it from the store
   submissions: Submission[];
 }
 
-const SummaryStats: React.FC<SummaryStatsProps> = ({ activities, students, submissions }) => {
+const SummaryStats: React.FC<SummaryStatsProps> = ({ activities, submissions }) => {
+  const [studentCount, setStudentCount] = useState(0);
+
+  useEffect(() => {
+    setStudentCount(studentStore.getStudentCount());
+    
+    const unsubscribe = studentStore.subscribe(() => {
+      setStudentCount(studentStore.getStudentCount());
+    });
+    
+    return unsubscribe;
+  }, []);
+
   // Calculate submission statistics
   const totalSubmissions = submissions.length;
   const pendingSubmissions = submissions.filter(sub => sub.status === "pending").length;
@@ -30,7 +43,7 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ activities, students, submi
         title="Registered Students"
         content={
           <div className="flex items-center justify-center h-full">
-            <div className="text-4xl font-bold text-primary">{students.length}</div>
+            <div className="text-4xl font-bold text-primary">{studentCount}</div>
           </div>
         }
       />

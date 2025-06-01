@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, UserRole, AuthContextType } from "../types";
+import { studentStore } from "@/stores/studentStore";
 
 // Mock user data (would use an actual API in production)
 const mockUsers = [
@@ -93,6 +94,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { password: _, ...userWithoutPassword } = newUser;
         setUser(userWithoutPassword);
         localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+        
+        // If the user is a student, add them to the student store
+        if (role === UserRole.Student) {
+          studentStore.addStudent(userWithoutPassword);
+        }
         
         setLoading(false);
         resolve();

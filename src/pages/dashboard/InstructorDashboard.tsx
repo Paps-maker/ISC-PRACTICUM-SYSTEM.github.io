@@ -166,7 +166,6 @@ const InstructorDashboard: React.FC = () => {
       {/* Summary Statistics */}
       <SummaryStats 
         activities={mockActivities}
-        students={mockStudents}
         submissions={mockSubmissions}
       />
 
@@ -191,7 +190,6 @@ const InstructorDashboard: React.FC = () => {
 
       {/* Student Progress */}
       <StudentProgress 
-        students={mockStudents}
         activities={mockActivities}
         submissions={mockSubmissions}
       />

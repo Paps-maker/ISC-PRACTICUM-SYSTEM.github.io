@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   Table, 
   TableHeader, 
@@ -12,52 +12,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Printer, UserPlus, Users } from "lucide-react";
-import { UserRole } from "@/types";
-
-// Mock student data
-const mockStudents = [
-  { 
-    id: "1", 
-    name: "John Student", 
-    email: "student@example.com", 
-    role: UserRole.Student,
-    registrationDate: "2025-01-15"
-  },
-  { 
-    id: "4", 
-    name: "Alice Cooper", 
-    email: "alice@example.com", 
-    role: UserRole.Student,
-    registrationDate: "2025-02-10"
-  },
-  { 
-    id: "5", 
-    name: "Bob Johnson", 
-    email: "bob@example.com", 
-    role: UserRole.Student,
-    registrationDate: "2025-02-15"
-  },
-  { 
-    id: "6", 
-    name: "Carol White", 
-    email: "carol@example.com", 
-    role: UserRole.Student,
-    registrationDate: "2025-03-01"
-  },
-  { 
-    id: "7", 
-    name: "Dave Brown", 
-    email: "dave@example.com", 
-    role: UserRole.Student,
-    registrationDate: "2025-03-10"
-  },
-];
+import { User } from "@/types";
+import { studentStore } from "@/stores/studentStore";
 
 const StudentList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [students, setStudents] = useState<User[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
   
-  const filteredStudents = mockStudents.filter(student => 
+  // Load students from store and subscribe to changes
+  useEffect(() => {
+    setStudents(studentStore.getStudents());
+    
+    const unsubscribe = studentStore.subscribe(() => {
+      setStudents(studentStore.getStudents());
+    });
+    
+    return unsubscribe;
+  }, []);
+  
+  const filteredStudents = students.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -150,7 +124,7 @@ const StudentList: React.FC = () => {
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>{student.email}</TableCell>
-                      <TableCell>{new Date(student.registrationDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(student.registrationDate || Date.now()).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))
                 ) : (

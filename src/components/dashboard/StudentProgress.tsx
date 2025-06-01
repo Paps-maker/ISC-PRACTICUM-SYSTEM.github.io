@@ -1,21 +1,33 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Activity, Submission, User } from "@/types";
+import { studentStore } from "@/stores/studentStore";
 
 interface StudentProgressProps {
-  students: User[];
+  students?: never; // Remove students prop since we'll get it from the store
   activities: Activity[];
   submissions: Submission[];
 }
 
 const StudentProgress: React.FC<StudentProgressProps> = ({ 
-  students, 
   activities, 
   submissions 
 }) => {
+  const [students, setStudents] = useState<User[]>([]);
+
+  useEffect(() => {
+    setStudents(studentStore.getStudents());
+    
+    const unsubscribe = studentStore.subscribe(() => {
+      setStudents(studentStore.getStudents());
+    });
+    
+    return unsubscribe;
+  }, []);
+
   // Calculate activity completion per student
   const activityCompletionPerStudent = students.map(student => {
     const studentSubmissions = submissions.filter(sub => sub.studentId === student.id);
