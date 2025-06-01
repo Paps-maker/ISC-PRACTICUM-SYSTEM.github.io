@@ -1,17 +1,15 @@
-
-
-export enum UserRole {
-  Student = "student",
-  Instructor = "instructor",
-  Supervisor = "supervisor"
-}
-
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  registrationDate?: string; // Adding registrationDate property as optional
+}
+
+export enum UserRole {
+  Student = "student",
+  Instructor = "instructor",
+  Supervisor = "supervisor",
+  Admin = "admin",
 }
 
 export interface Activity {
@@ -20,7 +18,7 @@ export interface Activity {
   description: string;
   startDate: string;
   endDate: string;
-  deadline?: string; // Adding deadline property as optional
+  deadline?: string;
   createdAt: string;
   createdBy: string;
 }
@@ -29,47 +27,26 @@ export interface Submission {
   id: string;
   activityId: string;
   studentId: string;
-  fileName?: string; // Making fileName optional
+  fileName: string;
   fileUrl: string;
   submittedAt: string;
-  feedback?: string; // Adding feedback property as optional
-  grade?: number; // Adding grade property as optional
-  status: "pending" | "reviewed";
+  status: SubmissionStatus;
+  grade?: number;
+  feedback?: string;
 }
 
-export interface Evaluation {
-  id: string;
-  submissionId: string;
-  supervisorId: string;
-  grade: number;
-  feedback: string;
-  evaluatedAt: string;
-}
-
-export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
-  logout: () => void;
-  loading: boolean;
-}
-
-export interface DashboardCardProps {
-  title: string;
-  subtitle?: string;
-  content?: React.ReactNode;
-  footer?: React.ReactNode;
-  className?: string;
+export enum SubmissionStatus {
+  Pending = "pending",
+  Graded = "graded",
+  Late = "late",
 }
 
 export interface SubmissionFormProps {
-  activityId: string;
+  activityId?: string; // Make activityId optional
 }
 
-export interface FileUploadProps {
-  onFileSelect: (file: File) => void;
-  acceptedFileTypes?: string;
-  maxSize?: number;
+export interface ManageActivitiesProps {
+  activities: Activity[];
+  onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
 }
-

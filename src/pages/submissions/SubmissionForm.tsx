@@ -28,43 +28,37 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivit
   const [fileName, setFileName] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [activity, setActivity] = useState<Activity | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [reportTitle, setReportTitle] = useState("");
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
   
-  // Use activityId from props or URL query parameter
+  // Use activityId from props or URL query parameter (both optional now)
   const activityId = propActivityId || queryActivityId;
 
   useEffect(() => {
-    if (!activityId) {
-      toast({
-        title: "Error",
-        description: "Activity ID is required.",
-        variant: "destructive",
-      });
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    
-    // Fetch activity details
-    setTimeout(() => {
-      // Mock activity data
-      const mockActivity: Activity = {
-        id: activityId || "1",
-        title: "Week 1: Company Introduction",
-        description: "Write a brief introduction about the company you are interning with.",
-        startDate: "2025-06-03T10:00:00Z", 
-        endDate: "2025-06-10T23:59:59Z",
-        deadline: "2025-06-10T23:59:59Z",
-        createdAt: "2025-05-01T10:00:00Z",
-        createdBy: "2"
-      };
+    // Only fetch activity if activityId is provided
+    if (activityId) {
+      setLoading(true);
       
-      setActivity(mockActivity);
-      setLoading(false);
-    }, 500);
+      // Fetch activity details
+      setTimeout(() => {
+        // Mock activity data
+        const mockActivity: Activity = {
+          id: activityId,
+          title: "Week 1: Company Introduction",
+          description: "Write a brief introduction about the company you are interning with.",
+          startDate: "2025-06-03T10:00:00Z", 
+          endDate: "2025-06-10T23:59:59Z",
+          deadline: "2025-06-10T23:59:59Z",
+          createdAt: "2025-05-01T10:00:00Z",
+          createdBy: "2"
+        };
+        
+        setActivity(mockActivity);
+        setLoading(false);
+      }, 500);
+    }
   }, [activityId]);
 
   const handleFileSelect = (selectedFile: File) => {
@@ -89,6 +83,15 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivit
       return;
     }
 
+    if (!activityId && !reportTitle.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide a title for your report.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Simulate submission
     setSubmitting(true);
     setTimeout(() => {
@@ -97,7 +100,13 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivit
         description: "Your report has been submitted successfully!",
       });
       setSubmitting(false);
-      navigate(`/activities/${activityId}`);
+      
+      // Navigate based on whether activityId was provided
+      if (activityId) {
+        navigate(`/activities/${activityId}`);
+      } else {
+        navigate('/dashboard/student');
+      }
     }, 1500);
   };
 
@@ -112,38 +121,37 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivit
     );
   }
 
-  if (!activity) {
-    return (
-      <div className="container mx-auto p-4 lg:p-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Activity not found</h2>
-          <p className="mt-2 text-muted-foreground">
-            The activity you're trying to submit to doesn't exist
-          </p>
-          <Button className="mt-4" onClick={() => navigate('/activities')}>
-            Back to Activities
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto p-4 lg:p-6">
-      <BackButton to="/activities" label="Back to Activities" />
+      <BackButton to={activityId ? `/activities/${activityId}` : "/dashboard/student"} label={activityId ? "Back to Activity" : "Back to Dashboard"} />
       
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle>Submit Your Report</CardTitle>
           <CardDescription>
-            Upload your report for "{activity.title}"
+            {activity ? `Upload your report for "${activity.title}"` : "Upload your report"}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          <div>
-            <h3 className="text-lg font-medium mb-2">{activity.title}</h3>
-            <p className="text-muted-foreground mb-4">{activity.description}</p>
-          </div>
+          {activity && (
+            <div>
+              <h3 className="text-lg font-medium mb-2">{activity.title}</h3>
+              <p className="text-muted-foreground mb-4">{activity.description}</p>
+            </div>
+          )}
+
+          {!activityId && (
+            <div className="grid gap-2">
+              <Label htmlFor="reportTitle">Report Title</Label>
+              <Input
+                id="reportTitle"
+                value={reportTitle}
+                onChange={(e) => setReportTitle(e.target.value)}
+                placeholder="Enter a title for your report..."
+                className="w-full"
+              />
+            </div>
+          )}
           
           <div className="grid gap-2">
             <Label htmlFor="file">Upload Your Report</Label>
@@ -177,14 +185,14 @@ const SubmissionForm: React.FC<SubmissionFormProps> = ({ activityId: propActivit
         <CardFooter className="flex flex-col gap-4 sm:flex-row sm:justify-end">
           <Button 
             variant="outline" 
-            onClick={() => navigate(`/activities/${activityId}`)}
+            onClick={() => navigate(activityId ? `/activities/${activityId}` : '/dashboard/student')}
             disabled={submitting}
           >
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={submitting || !file}
+            disabled={submitting || !file || (!activityId && !reportTitle.trim())}
             className="w-full sm:w-auto"
           >
             {submitting ? (
