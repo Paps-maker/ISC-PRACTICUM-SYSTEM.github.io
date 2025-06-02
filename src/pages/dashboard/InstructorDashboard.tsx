@@ -4,13 +4,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardCardProps } from "@/types";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, FileBarChart } from "lucide-react";
 import QuickActions from "@/components/dashboard/QuickActions";
 import SummaryStats from "@/components/dashboard/SummaryStats";
 import RecentActivities from "@/components/dashboard/RecentActivities";
 import RecentSubmissions from "@/components/dashboard/RecentSubmissions";
 import StudentProgress from "@/components/dashboard/StudentProgress";
-import { Activity, Submission, User, UserRole } from "@/types";
+import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
 
 const InstructorDashboard: React.FC = () => {
   // Mock data for dashboard
@@ -76,31 +76,34 @@ const InstructorDashboard: React.FC = () => {
       id: "1",
       activityId: "1",
       studentId: "1",
+      fileName: "company_intro.pdf",
       fileUrl: "https://example.com/file1.pdf",
       submittedAt: "2025-06-05T15:30:00Z",
       feedback: null,
       grade: null,
-      status: "pending"
+      status: SubmissionStatus.Pending
     },
     {
       id: "2",
       activityId: "1",
       studentId: "4",
+      fileName: "company_intro_alice.pdf",
       fileUrl: "https://example.com/file2.pdf",
       submittedAt: "2025-06-06T10:45:00Z",
       feedback: "Great work!",
       grade: 85,
-      status: "reviewed"
+      status: SubmissionStatus.Reviewed
     },
     {
       id: "3",
       activityId: "2",
       studentId: "5",
+      fileName: "department_functions.pdf",
       fileUrl: "https://example.com/file3.pdf",
       submittedAt: "2025-06-12T09:20:00Z",
       feedback: null,
       grade: null,
-      status: "pending"
+      status: SubmissionStatus.Pending
     }
   ];
 
@@ -133,6 +136,22 @@ const InstructorDashboard: React.FC = () => {
       footer: (
         <Link to="/submissions">
           <Button>View Submissions</Button>
+        </Link>
+      ),
+    },
+    {
+      title: "Progress Reports",
+      subtitle: "Track student progress and performance",
+      content: (
+        <p>
+          Generate comprehensive reports on student progress, completion rates, and performance metrics across all activities.
+        </p>
+      ),
+      footer: (
+        <Link to="/reports">
+          <Button>
+            <FileBarChart className="mr-2 h-4 w-4" /> View Reports
+          </Button>
         </Link>
       ),
     },
@@ -194,7 +213,7 @@ const InstructorDashboard: React.FC = () => {
         submissions={mockSubmissions}
       />
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-6">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mt-6">
         {cards.map((card, index) => (
           <Card key={index} className="h-full">
             <CardHeader>

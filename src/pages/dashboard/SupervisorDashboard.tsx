@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Evaluation, Submission, User, UserRole } from "@/types";
+import { Activity, Evaluation, Submission, User, UserRole, SubmissionStatus } from "@/types";
 import { CheckCircle, Download, FileText, Star, Users, Megaphone, Settings } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
@@ -88,7 +89,7 @@ const SupervisorDashboard: React.FC = () => {
         fileName: "company_intro.pdf",
         fileUrl: "#",
         submittedAt: "2025-06-08T14:30:00Z",
-        status: "reviewed"
+        status: SubmissionStatus.Reviewed
       },
       {
         id: "2",
@@ -97,7 +98,7 @@ const SupervisorDashboard: React.FC = () => {
         fileName: "company_intro_emma.pdf",
         fileUrl: "#",
         submittedAt: "2025-06-09T10:15:00Z",
-        status: "pending"
+        status: SubmissionStatus.Pending
       },
       {
         id: "3",
@@ -106,7 +107,7 @@ const SupervisorDashboard: React.FC = () => {
         fileName: "department_overview.docx",
         fileUrl: "#",
         submittedAt: "2025-06-15T16:45:00Z",
-        status: "pending"
+        status: SubmissionStatus.Pending
       }
     ];
 
@@ -131,8 +132,8 @@ const SupervisorDashboard: React.FC = () => {
 
   // Calculate statistics
   const totalSubmissions = submissions.length;
-  const pendingSubmissions = submissions.filter(sub => sub.status === "pending").length;
-  const reviewedSubmissions = submissions.filter(sub => sub.status === "reviewed").length;
+  const pendingSubmissions = submissions.filter(sub => sub.status === SubmissionStatus.Pending).length;
+  const reviewedSubmissions = submissions.filter(sub => sub.status === SubmissionStatus.Reviewed).length;
   
   // Calculate average grade
   const submissionsWithGrades = submissions.filter(sub => {
@@ -264,7 +265,7 @@ const SupervisorDashboard: React.FC = () => {
             </thead>
             <tbody>
               {submissions
-                .filter(sub => sub.status === "pending")
+                .filter(sub => sub.status === SubmissionStatus.Pending)
                 .map(submission => {
                   const activity = activities.find(a => a.id === submission.activityId);
                   const student = students.find(s => s.id === submission.studentId);
@@ -303,7 +304,7 @@ const SupervisorDashboard: React.FC = () => {
                   );
                 })}
                 
-                {submissions.filter(sub => sub.status === "pending").length === 0 && (
+                {submissions.filter(sub => sub.status === SubmissionStatus.Pending).length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
                       No pending submissions to review
