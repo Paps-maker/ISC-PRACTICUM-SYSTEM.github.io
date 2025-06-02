@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Evaluation, Submission, User, UserRole } from "@/types";
-import { CheckCircle, Download, FileText, Star, Users } from "lucide-react";
+import { CheckCircle, Download, FileText, Star, Users, Megaphone, Settings } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 const SupervisorDashboard: React.FC = () => {
@@ -119,6 +118,7 @@ const SupervisorDashboard: React.FC = () => {
         supervisorId: user?.id || "3",
         grade: 85,
         feedback: "Good effort, but needs more specific examples.",
+        evaluatedBy: user?.id || "3",
         evaluatedAt: "2025-06-09T11:20:00Z"
       }
     ];
@@ -211,7 +211,7 @@ const SupervisorDashboard: React.FC = () => {
 
       {/* Quick Actions */}
       <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <Link to="/students" className="w-full">
           <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
             <Users className="h-6 w-6" />
@@ -226,10 +226,17 @@ const SupervisorDashboard: React.FC = () => {
           </Button>
         </Link>
 
-        <Link to="/activities" className="w-full">
+        <Link to="/activities/manage" className="w-full">
           <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
-            <FileText className="h-6 w-6" />
-            <span>View Activities</span>
+            <Settings className="h-6 w-6" />
+            <span>Manage Activities</span>
+          </Button>
+        </Link>
+
+        <Link to="/announcements" className="w-full">
+          <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
+            <Megaphone className="h-6 w-6" />
+            <span>Announcements</span>
           </Button>
         </Link>
         
