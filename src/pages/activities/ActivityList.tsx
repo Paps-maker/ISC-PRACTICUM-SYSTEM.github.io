@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,16 +22,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
-import { Activity } from "@/types";
+import { Activity, UserRole } from "@/types";
 import { getActivities } from "@/lib/api";
 import { CalendarDateRangePicker } from "@/components/ui/calendar-date-range";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { BackButton } from "@/components/ui/back-button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ActivityList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const { user } = useAuth();
   
   const { data: activities, isLoading, isError } = useQuery(
     {
@@ -44,6 +45,21 @@ const ActivityList: React.FC = () => {
   useEffect(() => {
     document.title = "Activities | SPMS";
   }, []);
+
+  const getDashboardUrl = () => {
+    if (!user) return "/";
+    
+    switch (user.role) {
+      case UserRole.Student:
+        return "/dashboard/student";
+      case UserRole.Instructor:
+        return "/dashboard/instructor";
+      case UserRole.Supervisor:
+        return "/dashboard/supervisor";
+      default:
+        return "/";
+    }
+  };
 
   if (isLoading) {
     return <div className="flex justify-center items-center min-h-screen">
@@ -59,7 +75,7 @@ const ActivityList: React.FC = () => {
 
   return (
     <div className="container mx-auto py-10">
-      <BackButton to="/dashboard" label="Back to Dashboard" />
+      <BackButton to={getDashboardUrl()} label="Back to Dashboard" />
       
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Activities</h1>

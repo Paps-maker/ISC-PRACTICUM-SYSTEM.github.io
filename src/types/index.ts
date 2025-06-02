@@ -45,7 +45,7 @@ export enum SubmissionStatus {
 }
 
 export interface SubmissionFormProps {
-  activityId?: string; // Make activityId optional
+  activityId?: string;
 }
 
 export interface ManageActivitiesProps {
@@ -81,6 +81,7 @@ export interface Evaluation {
   feedback: string;
   evaluatedBy: string;
   evaluatedAt: string;
+  supervisorId?: string;
 }
 
 export interface Notification {

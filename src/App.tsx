@@ -15,6 +15,7 @@ import SupervisorDashboard from '@/pages/dashboard/SupervisorDashboard';
 import ActivityList from '@/pages/activities/ActivityList';
 import ActivityDetails from '@/pages/activities/ActivityDetails';
 import ActivityForm from '@/pages/activities/ActivityForm';
+import EditActivity from '@/pages/activities/EditActivity';
 import ManageActivities from '@/pages/activities/ManageActivities';
 import StudentList from '@/pages/students/StudentList';
 import SubmissionForm from '@/pages/submissions/SubmissionForm';
@@ -22,6 +23,7 @@ import EditSubmission from '@/pages/submissions/EditSubmission';
 import SubmissionList from '@/pages/submissions/SubmissionList';
 import GradeSubmission from '@/pages/submissions/GradeSubmission';
 import SubmissionsGrade from '@/pages/submissions/SubmissionsGrade';
+import AttachmentLetters from '@/pages/letters/AttachmentLetters';
 import NotFound from '@/pages/NotFound';
 
 import './App.css';
@@ -45,6 +47,8 @@ function App() {
               <Route path="/activities" element={<ActivityList />} />
               <Route path="/activities/:activityId" element={<ActivityDetails />} />
               <Route path="/activities/new" element={<ActivityForm />} />
+              <Route path="/activities/create" element={<ActivityForm />} />
+              <Route path="/activities/edit/:id" element={<EditActivity />} />
               <Route path="/activities/manage" element={<ManageActivities />} />
               <Route path="/students" element={<StudentList />} />
               <Route path="/submissions/new" element={<SubmissionForm />} />
@@ -52,6 +56,7 @@ function App() {
               <Route path="/submissions/review" element={<SubmissionList />} />
               <Route path="/submissions/:submissionId" element={<GradeSubmission />} />
               <Route path="/submissions/grade/:submissionId" element={<SubmissionsGrade />} />
+              <Route path="/letters/attachment" element={<AttachmentLetters />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
