@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const NavBar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -42,6 +43,17 @@ const NavBar: React.FC = () => {
               <Link to={getDashboardUrl()} className="hover:text-white/90">
                 Dashboard
               </Link>
+              {(user?.role === UserRole.Instructor || user?.role === UserRole.Supervisor) && (
+                <>
+                  <Link to="/activities/manage" className="hover:text-white/90">
+                    Manage Activities
+                  </Link>
+                  <Link to="/letters/attachment" className="hover:text-white/90">
+                    Letters
+                  </Link>
+                </>
+              )}
+              <NotificationBell />
               <span className="text-sm opacity-90">
                 {user?.name} ({user?.role})
               </span>

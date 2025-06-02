@@ -29,18 +29,32 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog";
-import { Plus, Printer, Users, FileText } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Plus, Printer, Users, FileText, Edit, Trash2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Activity, User, UserRole } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { getActivities, getStudents } from "@/lib/api";
+import { getActivities, deleteActivity } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { studentStore } from "@/stores/studentStore";
 
 const ManageActivities: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [students, setStudents] = useState<User[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   
   const { data: activities, isLoading: activitiesLoading } = useQuery({
@@ -48,18 +62,44 @@ const ManageActivities: React.FC = () => {
     queryFn: () => getActivities(),
   });
 
-  const { data: students, isLoading: studentsLoading } = useQuery({
-    queryKey: ["students"],
-    queryFn: () => getStudents(),
-  });
+  // Get students from the store
+  useEffect(() => {
+    setStudents(studentStore.getStudents());
+    
+    const unsubscribe = studentStore.subscribe(() => {
+      setStudents(studentStore.getStudents());
+    });
+    
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     document.title = "Manage Activities | SPMS";
   }, []);
 
+  const deleteActivityMutation = useMutation({
+    mutationFn: deleteActivity,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      toast({
+        title: "Activity deleted",
+        description: "The activity has been successfully deleted.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete activity. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteActivity = (activityId: string) => {
+    deleteActivityMutation.mutate(activityId);
+  };
+
   const handlePrintActivity = (activityId: string) => {
-    // In a real app, this would generate a PDF or printable view
-    // For now, we'll just print the current page
     window.print();
     
     toast({
@@ -73,17 +113,11 @@ const ManageActivities: React.FC = () => {
     activity.description.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  if (activitiesLoading || studentsLoading) {
+  if (activitiesLoading) {
     return <div className="flex justify-center items-center min-h-screen">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>;
   }
-
-  // Count submissions per activity (would come from real data in a production app)
-  const getSubmissionCount = (activityId: string) => {
-    // Mock function
-    return Math.floor(Math.random() * (students?.length || 0));
-  };
 
   // Only instructors and supervisors should access this page
   if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
@@ -97,6 +131,11 @@ const ManageActivities: React.FC = () => {
       </div>
     );
   }
+
+  // Count submissions per activity (would come from real data in a production app)
+  const getSubmissionCount = (activityId: string) => {
+    return Math.floor(Math.random() * (students?.length || 0));
+  };
 
   return (
     <div className="container mx-auto py-10">
@@ -244,6 +283,45 @@ const ManageActivities: React.FC = () => {
                           >
                             <Printer className="h-4 w-4" />
                           </Button>
+                          
+                          <Link to={`/activities/edit/${activity.id}`}>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the activity
+                                  "{activity.title}" and all associated data.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDeleteActivity(activity.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                           
                           <Link to={`/activities/${activity.id}`}>
                             <Button 

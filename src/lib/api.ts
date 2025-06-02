@@ -1,5 +1,6 @@
 
 import { Activity, User, UserRole } from "@/types";
+import { notificationStore } from "@/stores/notificationStore";
 
 // Mock data for activities
 const mockActivities: Activity[] = [
@@ -41,34 +42,6 @@ const mockActivities: Activity[] = [
   }
 ];
 
-// Mock data for students
-const mockStudents: User[] = [
-  {
-    id: "1",
-    name: "John Student",
-    email: "student@example.com",
-    role: UserRole.Student
-  },
-  {
-    id: "4",
-    name: "Emma Johnson",
-    email: "emma@example.com",
-    role: UserRole.Student
-  },
-  {
-    id: "5",
-    name: "Michael Smith",
-    email: "michael@example.com",
-    role: UserRole.Student
-  },
-  {
-    id: "6",
-    name: "Sophia Williams",
-    email: "sophia@example.com",
-    role: UserRole.Student
-  }
-];
-
 // Get activities with optional filtering
 export const getActivities = (
   searchQuery?: string,
@@ -79,7 +52,6 @@ export const getActivities = (
     setTimeout(() => {
       let filteredActivities = [...mockActivities];
       
-      // Filter by search query if provided
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         filteredActivities = filteredActivities.filter(
@@ -89,14 +61,12 @@ export const getActivities = (
         );
       }
       
-      // Filter by start date if provided
       if (startDate) {
         filteredActivities = filteredActivities.filter(
           (activity) => new Date(activity.startDate) >= startDate
         );
       }
       
-      // Filter by end date if provided
       if (endDate) {
         filteredActivities = filteredActivities.filter(
           (activity) => new Date(activity.endDate) <= endDate
@@ -104,15 +74,15 @@ export const getActivities = (
       }
       
       resolve(filteredActivities);
-    }, 500); // Simulated API delay
+    }, 500);
   });
 };
 
-// Get students (mock)
+// Get students (mock) - now returns empty array since we removed examples
 export const getStudents = (): Promise<User[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(mockStudents);
+      resolve([]);
     }, 300);
   });
 };
@@ -140,7 +110,47 @@ export const createActivity = (params: CreateActivityParams): Promise<Activity> 
       };
       
       mockActivities.push(newActivity);
+      
+      // Notify all students about the new activity
+      notificationStore.notifyStudentsOfNewActivity(newActivity.title, newActivity.description);
+      
       resolve(newActivity);
+    }, 500);
+  });
+};
+
+// Update an activity
+export const updateActivity = (id: string, params: Partial<CreateActivityParams>): Promise<Activity> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const activityIndex = mockActivities.findIndex(a => a.id === id);
+      if (activityIndex === -1) {
+        reject(new Error('Activity not found'));
+        return;
+      }
+      
+      mockActivities[activityIndex] = {
+        ...mockActivities[activityIndex],
+        ...params
+      };
+      
+      resolve(mockActivities[activityIndex]);
+    }, 500);
+  });
+};
+
+// Delete an activity
+export const deleteActivity = (id: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const activityIndex = mockActivities.findIndex(a => a.id === id);
+      if (activityIndex === -1) {
+        reject(new Error('Activity not found'));
+        return;
+      }
+      
+      mockActivities.splice(activityIndex, 1);
+      resolve();
     }, 500);
   });
 };
