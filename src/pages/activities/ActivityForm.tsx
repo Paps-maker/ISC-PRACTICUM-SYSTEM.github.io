@@ -29,6 +29,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { createActivity } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { AccessDenied } from "@/components/ui/access-denied";
+import { UserRole } from "@/types";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -86,6 +88,11 @@ const ActivityForm: React.FC = () => {
   const handlePrint = () => {
     window.print();
   };
+
+  // Allow both instructors and supervisors to create activities
+  if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
+    return <AccessDenied allowedRoles={[UserRole.Instructor, UserRole.Supervisor]} />;
+  }
 
   return (
     <div className="container mx-auto py-10">

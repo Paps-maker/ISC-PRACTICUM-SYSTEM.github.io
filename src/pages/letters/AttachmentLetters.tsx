@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Printer, Download, FileText } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types";
+import { AccessDenied } from "@/components/ui/access-denied";
 
 const AttachmentLetters: React.FC = () => {
   const { user } = useAuth();
@@ -42,15 +42,7 @@ const AttachmentLetters: React.FC = () => {
 
   // Only instructors and supervisors should access this page
   if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
-    return (
-      <div className="container mx-auto py-10">
-        <Card className="border-red-200">
-          <CardContent className="pt-6">
-            <p className="text-center text-red-500">You do not have permission to access this page.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <AccessDenied allowedRoles={[UserRole.Instructor, UserRole.Supervisor]} />;
   }
 
   return (

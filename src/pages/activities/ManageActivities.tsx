@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -48,6 +47,7 @@ import { format } from "date-fns";
 import { getActivities, deleteActivity } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { studentStore } from "@/stores/studentStore";
+import { AccessDenied } from "@/components/ui/access-denied";
 
 const ManageActivities: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -119,17 +119,9 @@ const ManageActivities: React.FC = () => {
     </div>;
   }
 
-  // Only instructors and supervisors should access this page
+  // Allow both instructors and supervisors to access this page
   if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
-    return (
-      <div className="container mx-auto py-10">
-        <Card className="border-red-200">
-          <CardContent className="pt-6">
-            <p className="text-center text-red-500">You do not have permission to access this page.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <AccessDenied allowedRoles={[UserRole.Instructor, UserRole.Supervisor]} />;
   }
 
   // Count submissions per activity (would come from real data in a production app)

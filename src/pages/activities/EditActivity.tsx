@@ -31,6 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 import { getActivityById, updateActivity } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { BackButton } from "@/components/ui/back-button";
+import { AccessDenied } from "@/components/ui/access-denied";
+import { UserRole } from "@/types";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -125,6 +127,11 @@ const EditActivity: React.FC = () => {
         </CardContent>
       </Card>
     </div>;
+  }
+
+  // Allow both instructors and supervisors to edit activities
+  if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
+    return <AccessDenied allowedRoles={[UserRole.Instructor, UserRole.Supervisor]} />;
   }
 
   return (
