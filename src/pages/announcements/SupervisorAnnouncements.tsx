@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Megaphone, Send, Plus, Clock, Users } from "lucide-react";
+import { Megaphone, Send, Plus, Clock, Users, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole, Announcement } from "@/types";
@@ -21,6 +21,7 @@ const SupervisorAnnouncements: React.FC = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   
   // Form state
   const [title, setTitle] = useState("");
@@ -57,35 +58,74 @@ const SupervisorAnnouncements: React.FC = () => {
     return <AccessDenied allowedRoles={[UserRole.Supervisor]} />;
   }
 
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setPriority("medium");
+    setTargetAudience([UserRole.Student]);
+    setEditingAnnouncement(null);
+    setShowForm(false);
+  };
+
+  const handleEdit = (announcement: Announcement) => {
+    setEditingAnnouncement(announcement);
+    setTitle(announcement.title);
+    setContent(announcement.content);
+    setPriority(announcement.priority);
+    setTargetAudience(announcement.targetAudience);
+    setShowForm(true);
+  };
+
+  const handleDelete = (announcementId: string) => {
+    if (window.confirm("Are you sure you want to delete this announcement?")) {
+      setAnnouncements(announcements.filter(a => a.id !== announcementId));
+      toast({
+        title: "Announcement deleted",
+        description: "The announcement has been successfully deleted.",
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     // Simulate API call
     setTimeout(() => {
-      const newAnnouncement: Announcement = {
-        id: `${announcements.length + 1}`,
-        title,
-        content,
-        createdBy: user?.id || "3",
-        createdAt: new Date().toISOString(),
-        targetAudience,
-        priority
-      };
+      if (editingAnnouncement) {
+        // Update existing announcement
+        const updatedAnnouncements = announcements.map(a => 
+          a.id === editingAnnouncement.id 
+            ? { ...a, title, content, priority, targetAudience }
+            : a
+        );
+        setAnnouncements(updatedAnnouncements);
+        
+        toast({
+          title: "Announcement updated",
+          description: "Your announcement has been successfully updated.",
+        });
+      } else {
+        // Create new announcement
+        const newAnnouncement: Announcement = {
+          id: `${announcements.length + 1}`,
+          title,
+          content,
+          createdBy: user?.id || "3",
+          createdAt: new Date().toISOString(),
+          targetAudience,
+          priority
+        };
 
-      setAnnouncements([newAnnouncement, ...announcements]);
-      
-      toast({
-        title: "Announcement sent",
-        description: `Your announcement has been sent to ${targetAudience.join(", ")} users.`,
-      });
+        setAnnouncements([newAnnouncement, ...announcements]);
+        
+        toast({
+          title: "Announcement sent",
+          description: `Your announcement has been sent to ${targetAudience.join(", ")} users.`,
+        });
+      }
 
-      // Reset form
-      setTitle("");
-      setContent("");
-      setPriority("medium");
-      setTargetAudience([UserRole.Student]);
-      setShowForm(false);
+      resetForm();
       setLoading(false);
     }, 1000);
   };
@@ -128,8 +168,12 @@ const SupervisorAnnouncements: React.FC = () => {
       {showForm && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Create New Announcement</CardTitle>
-            <CardDescription>Send important information to students and instructors</CardDescription>
+            <CardTitle>
+              {editingAnnouncement ? "Edit Announcement" : "Create New Announcement"}
+            </CardTitle>
+            <CardDescription>
+              {editingAnnouncement ? "Update your announcement" : "Send important information to students and instructors"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -197,9 +241,9 @@ const SupervisorAnnouncements: React.FC = () => {
               <div className="flex gap-2">
                 <Button type="submit" disabled={loading || targetAudience.length === 0}>
                   <Send className="mr-2 h-4 w-4" />
-                  {loading ? "Sending..." : "Send Announcement"}
+                  {loading ? (editingAnnouncement ? "Updating..." : "Sending...") : (editingAnnouncement ? "Update Announcement" : "Send Announcement")}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
                 </Button>
               </div>
@@ -227,6 +271,20 @@ const SupervisorAnnouncements: React.FC = () => {
                       <Users className="mr-1 h-3 w-3" />
                       {announcement.targetAudience.join(", ")}
                     </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(announcement)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(announcement.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
                 <p className="text-muted-foreground mb-3">{announcement.content}</p>

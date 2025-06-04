@@ -38,10 +38,10 @@ export interface Submission {
 }
 
 export enum SubmissionStatus {
-  Pending = "pending",
-  Graded = "graded",
-  Late = "late",
-  Reviewed = "reviewed",
+  Pending = "Pending",
+  Graded = "Graded", 
+  Late = "Late",
+  Reviewed = "Reviewed",
 }
 
 export interface SubmissionFormProps {
