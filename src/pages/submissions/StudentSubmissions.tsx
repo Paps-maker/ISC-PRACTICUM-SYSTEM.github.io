@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { BackButton } from "@/components/ui/back-button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission, SubmissionStatus } from "@/types";
+import { Activity, Submission, SubmissionStatus, UserRole } from "@/types";
 import { Calendar, FileText, Edit, Upload, Eye } from "lucide-react";
 
 const StudentSubmissions: React.FC = () => {
@@ -14,6 +15,21 @@ const StudentSubmissions: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const getDashboardUrl = () => {
+    if (!user) return "/";
+    
+    switch (user.role) {
+      case UserRole.Student:
+        return "/dashboard/student";
+      case UserRole.Instructor:
+        return "/dashboard/instructor";
+      case UserRole.Supervisor:
+        return "/dashboard/supervisor";
+      default:
+        return "/";
+    }
+  };
 
   useEffect(() => {
     // Mock data fetch - replace with actual API calls
@@ -115,6 +131,8 @@ const StudentSubmissions: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to={getDashboardUrl()} label="Back to Dashboard" />
+      
       <div className="mb-6">
         <h1 className="text-3xl font-bold">My Submissions</h1>
         <p className="text-muted-foreground">

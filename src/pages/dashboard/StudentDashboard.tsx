@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/ui/back-button";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission } from "@/types";
+import { Activity, Submission, SubmissionStatus } from "@/types";
 import { Calendar, CheckCircle, Clock, FileText, Upload, TrendingUp } from "lucide-react";
 
 const StudentDashboard: React.FC = () => {
@@ -58,7 +59,7 @@ const StudentDashboard: React.FC = () => {
         fileName: "company_intro.pdf",
         fileUrl: "#",
         submittedAt: "2025-06-08T14:30:00Z",
-        status: "reviewed"
+        status: SubmissionStatus.Reviewed
       }
     ];
 
@@ -97,6 +98,8 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to="/" label="Back to Home" />
+      
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Welcome, {user?.name}</h1>
         <p className="text-muted-foreground">
@@ -174,7 +177,7 @@ const StudentDashboard: React.FC = () => {
                           <div className="font-medium">{activity?.title}</div>
                           <div className="flex items-center text-xs text-muted-foreground gap-2">
                             {new Date(submission.submittedAt).toLocaleDateString()}
-                            <Badge variant={submission.status === "reviewed" ? "default" : "outline"}>
+                            <Badge variant={submission.status === SubmissionStatus.Reviewed ? "default" : "outline"}>
                               {submission.status}
                             </Badge>
                           </div>

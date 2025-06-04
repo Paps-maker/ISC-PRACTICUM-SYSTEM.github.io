@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BackButton } from "@/components/ui/back-button";
 import { DashboardCardProps } from "@/types";
 import { Plus, Users, FileBarChart } from "lucide-react";
 import QuickActions from "@/components/dashboard/QuickActions";
@@ -175,6 +176,8 @@ const InstructorDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to="/" label="Back to Home" />
+      
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Instructor Dashboard</h1>
         <p className="text-muted-foreground">
