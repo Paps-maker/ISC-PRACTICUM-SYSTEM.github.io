@@ -1,271 +1,315 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { FileText, Download, Search, Star } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BackButton } from "@/components/ui/back-button";
+import { AccessDenied } from "@/components/ui/access-denied";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission, User, UserRole } from "@/types";
+import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
+import { FileText, Calendar, Download, Star, Filter } from "lucide-react";
+import { format } from "date-fns";
 
 const SubmissionsGrade: React.FC = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<User[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredSubmissions, setFilteredSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "reviewed">("pending");
 
-  // Mock data fetch
   useEffect(() => {
-    // Simulate API call to fetch data
-    setTimeout(() => {
-      // Mock activities
-      const mockActivities: Activity[] = [
-        {
-          id: "1",
-          title: "Week 1: Company Introduction",
-          description: "Write a brief introduction about the company you are interning with.",
-          startDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-          endDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          deadline: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-          createdBy: "2"
-        },
-        {
-          id: "2",
-          title: "Week 2: Department Overview",
-          description: "Describe the department you are working in and its role within the company.",
-          startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          endDate: new Date(Date.now()).toISOString(),
-          deadline: new Date(Date.now()).toISOString(),
-          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-          createdBy: "2"
-        }
-      ];
+    setLoading(true);
 
-      // Mock students
-      const mockStudents: User[] = [
-        {
-          id: "1",
-          name: "John Student",
-          email: "john@example.com",
-          role: UserRole.Student
-        },
-        {
-          id: "3",
-          name: "Jane Student",
-          email: "jane@example.com",
-          role: UserRole.Student
-        }
-      ];
+    // Mock data
+    const mockActivities: Activity[] = [
+      {
+        id: "1",
+        title: "Week 1: Company Introduction",
+        description: "Write a brief introduction about the company you are interning with.",
+        startDate: "2025-06-03T10:00:00Z",
+        endDate: "2025-06-10T23:59:59Z",
+        deadline: "2025-06-10T23:59:59Z",
+        createdAt: "2025-05-01T10:00:00Z",
+        createdBy: "2"
+      },
+      {
+        id: "2",
+        title: "Week 2: Department Overview",
+        description: "Describe the department you are working in and its role within the company.",
+        startDate: "2025-06-10T10:00:00Z",
+        endDate: "2025-06-17T23:59:59Z",
+        deadline: "2025-06-17T23:59:59Z",
+        createdAt: "2025-05-01T10:05:00Z",
+        createdBy: "2"
+      }
+    ];
 
-      // Mock submissions
-      const mockSubmissions: Submission[] = [
-        {
-          id: "1",
-          activityId: "1",
-          studentId: "1",
-          fileName: "company_intro.pdf",
-          fileUrl: "#",
-          submittedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "pending"
-        },
-        {
-          id: "2",
-          activityId: "1",
-          studentId: "3",
-          fileName: "company_intro_jane.pdf",
-          fileUrl: "#",
-          submittedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "pending"
-        },
-        {
-          id: "3",
-          activityId: "2",
-          studentId: "1",
-          fileName: "department_overview.docx",
-          fileUrl: "#",
-          submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "pending"
-        },
-        {
-          id: "4",
-          activityId: "2",
-          studentId: "3",
-          fileName: "department_analysis.pdf",
-          fileUrl: "#",
-          submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "reviewed"
-        }
-      ];
+    const mockStudents: User[] = [
+      {
+        id: "1",
+        name: "John Student",
+        email: "student@example.com",
+        role: UserRole.Student
+      },
+      {
+        id: "4",
+        name: "Emma Johnson",
+        email: "emma@example.com",
+        role: UserRole.Student
+      },
+      {
+        id: "5",
+        name: "Michael Smith",
+        email: "michael@example.com",
+        role: UserRole.Student
+      }
+    ];
 
-      setActivities(mockActivities);
-      setStudents(mockStudents);
-      setSubmissions(mockSubmissions);
-      setLoading(false);
-    }, 1000);
+    const mockSubmissions: Submission[] = [
+      {
+        id: "1",
+        activityId: "1",
+        studentId: "1",
+        fileName: "company_intro.pdf",
+        fileUrl: "#",
+        submittedAt: "2025-06-08T14:30:00Z",
+        status: SubmissionStatus.Pending
+      },
+      {
+        id: "2",
+        activityId: "1",
+        studentId: "4",
+        fileName: "company_intro_emma.pdf",
+        fileUrl: "#",
+        submittedAt: "2025-06-09T10:15:00Z",
+        status: SubmissionStatus.Pending
+      },
+      {
+        id: "3",
+        activityId: "2",
+        studentId: "5",
+        fileName: "department_overview.docx",
+        fileUrl: "#",
+        submittedAt: "2025-06-15T16:45:00Z",
+        status: SubmissionStatus.Pending
+      },
+      {
+        id: "4",
+        activityId: "1",
+        studentId: "1",
+        fileName: "previous_submission.pdf",
+        fileUrl: "#",
+        submittedAt: "2025-06-01T12:00:00Z",
+        status: SubmissionStatus.Reviewed,
+        grade: 85,
+        feedback: "Great work!"
+      }
+    ];
+
+    setActivities(mockActivities);
+    setSubmissions(mockSubmissions);
+    setStudents(mockStudents);
+    setLoading(false);
   }, []);
 
-  // Only supervisors should access this page
   useEffect(() => {
-    if (user && user.role !== UserRole.Supervisor) {
-      toast({
-        title: "Access denied",
-        description: "Only supervisors can access the grading page.",
-        variant: "destructive",
-      });
-      navigate("/dashboard");
+    let filtered = submissions;
+
+    // Filter by status
+    if (filterStatus !== "all") {
+      filtered = filtered.filter(sub => 
+        filterStatus === "pending" ? sub.status === SubmissionStatus.Pending : sub.status === SubmissionStatus.Reviewed
+      );
     }
-  }, [user, navigate, toast]);
 
-  // Filter submissions based on search query
-  const filteredSubmissions = submissions.filter(submission => {
-    const student = students.find(s => s.id === submission.studentId);
-    const activity = activities.find(a => a.id === submission.activityId);
-    
-    const studentName = student?.name?.toLowerCase() || "";
-    const activityTitle = activity?.title?.toLowerCase() || "";
-    const query = searchQuery.toLowerCase();
-    
-    return studentName.includes(query) || activityTitle.includes(query);
-  });
+    // Filter by search query
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((submission) => {
+        const activity = activities.find((act) => act.id === submission.activityId);
+        const student = students.find((stu) => stu.id === submission.studentId);
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-8 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+        return (
+          (activity && activity.title.toLowerCase().includes(query)) ||
+          (student && student.name.toLowerCase().includes(query)) ||
+          submission.fileName.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    setFilteredSubmissions(filtered);
+  }, [searchQuery, submissions, activities, students, filterStatus]);
+
+  if (user?.role !== UserRole.Supervisor) {
+    return <AccessDenied allowedRoles={[UserRole.Supervisor]} />;
   }
 
+  const pendingCount = submissions.filter(sub => sub.status === SubmissionStatus.Pending).length;
+  const reviewedCount = submissions.filter(sub => sub.status === SubmissionStatus.Reviewed).length;
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Grade Submissions</h1>
-          <p className="text-muted-foreground">Review and grade student submissions</p>
+    <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to="/dashboard/supervisor" label="Back to Dashboard" />
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Star className="h-8 w-8" />
+          Grade Submissions
+        </h1>
+        <p className="text-muted-foreground">
+          Review and grade student submissions
+        </p>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pending Review</p>
+                <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
+              </div>
+              <FileText className="h-8 w-8 text-yellow-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Reviewed</p>
+                <p className="text-2xl font-bold text-green-600">{reviewedCount}</p>
+              </div>
+              <Star className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-2xl font-bold text-primary">{submissions.length}</p>
+              </div>
+              <FileText className="h-8 w-8 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <Input
+          type="search"
+          placeholder="Search by activity, student, or file name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1"
+        />
+        <div className="flex gap-2">
+          <Button
+            variant={filterStatus === "all" ? "default" : "outline"}
+            onClick={() => setFilterStatus("all")}
+            size="sm"
+          >
+            All
+          </Button>
+          <Button
+            variant={filterStatus === "pending" ? "default" : "outline"}
+            onClick={() => setFilterStatus("pending")}
+            size="sm"
+          >
+            Pending ({pendingCount})
+          </Button>
+          <Button
+            variant={filterStatus === "reviewed" ? "default" : "outline"}
+            onClick={() => setFilterStatus("reviewed")}
+            size="sm"
+          >
+            Reviewed ({reviewedCount})
+          </Button>
         </div>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Search Submissions</CardTitle>
-          <CardDescription>Filter by student name or activity title</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search submissions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 max-w-md"
-            />
+      {/* Submissions Grid */}
+      <div className="space-y-4">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4">Loading submissions...</p>
           </div>
-        </CardContent>
-      </Card>
+        ) : filteredSubmissions.length > 0 ? (
+          filteredSubmissions.map((submission) => {
+            const activity = activities.find((act) => act.id === submission.activityId);
+            const student = students.find((stu) => stu.id === submission.studentId);
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>All Submissions</CardTitle>
-              <CardDescription>
-                {submissions.length} total submissions | {submissions.filter(s => s.status === "pending").length} awaiting review
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student</TableHead>
-                <TableHead>Activity</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead>File</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredSubmissions.length > 0 ? (
-                filteredSubmissions.map(submission => {
-                  const student = students.find(s => s.id === submission.studentId);
-                  const activity = activities.find(a => a.id === submission.activityId);
-                  
-                  return (
-                    <TableRow key={submission.id}>
-                      <TableCell className="font-medium">
-                        {student?.name}
-                        <div className="text-xs text-muted-foreground">{student?.email}</div>
-                      </TableCell>
-                      <TableCell>
-                        {activity?.title}
-                        <div className="text-xs text-muted-foreground">
-                          Due: {activity ? new Date(activity.deadline || activity.endDate).toLocaleDateString() : "N/A"}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(submission.submittedAt).toLocaleDateString()}
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(submission.submittedAt).toLocaleTimeString()}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" className="h-8 p-0">
-                          <FileText size={14} className="mr-1" />
-                          <span className="text-xs">{submission.fileName}</span>
-                          <Download size={14} className="ml-1" />
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={submission.status === "reviewed" ? "outline" : "secondary"}>
-                          {submission.status === "reviewed" ? "Reviewed" : "Pending"}
+            return (
+              <Card key={submission.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{activity?.title}</CardTitle>
+                      <CardDescription className="mt-1">
+                        Submitted by {student?.name}
+                      </CardDescription>
+                    </div>
+                    <Badge variant={submission.status === SubmissionStatus.Reviewed ? "default" : "secondary"}>
+                      {submission.status === SubmissionStatus.Reviewed ? "Reviewed" : "Pending"}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{submission.fileName}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        {format(new Date(submission.submittedAt), "MMM d, yyyy 'at' h:mm a")}
+                      </div>
+                      {submission.grade && (
+                        <Badge variant="outline">
+                          Grade: {submission.grade}/100
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link to={`/submissions/${submission.id}/grade`}>
-                          <Button size="sm">
-                            <Star className="h-4 w-4 mr-1" />
-                            {submission.status === "reviewed" ? "View" : "Grade"}
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center">
-                    No submissions found. {searchQuery && "Try adjusting your search query."}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </Button>
+                      <Link to={`/submissions/${submission.id}/grade`}>
+                        <Button size="sm">
+                          <Star className="h-4 w-4 mr-1" />
+                          {submission.status === SubmissionStatus.Reviewed ? "Review" : "Grade"}
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        ) : (
+          <Card>
+            <CardContent className="text-center py-12">
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No submissions found</h3>
+              <p className="text-muted-foreground">
+                {searchQuery ? `No submissions match "${searchQuery}"` : "No submissions available for the selected filter"}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };

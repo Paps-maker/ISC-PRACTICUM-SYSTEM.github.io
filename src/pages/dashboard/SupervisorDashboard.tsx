@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/ui/back-button";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Evaluation, Submission, User, UserRole, SubmissionStatus } from "@/types";
@@ -80,7 +80,7 @@ const SupervisorDashboard: React.FC = () => {
       }
     ];
 
-    // Simulate fetching submissions
+    // Simulate fetching submissions with correct enum values
     const mockSubmissions: Submission[] = [
       {
         id: "1",
@@ -111,7 +111,7 @@ const SupervisorDashboard: React.FC = () => {
       }
     ];
 
-    // Simulate fetching evaluations
+    // Simulate fetching evaluations with correct properties
     const mockEvaluations: Evaluation[] = [
       {
         id: "1",
@@ -151,6 +151,8 @@ const SupervisorDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to="/" label="Back to Home" />
+      
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Supervisor Dashboard</h1>
         <p className="text-muted-foreground">

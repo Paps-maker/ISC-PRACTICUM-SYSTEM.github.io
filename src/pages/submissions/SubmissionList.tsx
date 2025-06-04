@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,8 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/ui/back-button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission, User, UserRole } from "@/types";
+import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
 import { Calendar, FileText, User as UserIcon } from "lucide-react";
 import { format } from "date-fns";
 
@@ -100,7 +102,7 @@ const SubmissionList: React.FC = () => {
         fileName: "company_intro.pdf",
         fileUrl: "#",
         submittedAt: "2025-06-08T14:30:00Z",
-        status: "reviewed"
+        status: SubmissionStatus.Reviewed
       },
       {
         id: "2",
@@ -109,7 +111,7 @@ const SubmissionList: React.FC = () => {
         fileName: "company_intro_emma.pdf",
         fileUrl: "#",
         submittedAt: "2025-06-09T10:15:00Z",
-        status: "pending"
+        status: SubmissionStatus.Pending
       },
       {
         id: "3",
@@ -118,7 +120,7 @@ const SubmissionList: React.FC = () => {
         fileName: "department_overview.docx",
         fileUrl: "#",
         submittedAt: "2025-06-15T16:45:00Z",
-        status: "pending"
+        status: SubmissionStatus.Pending
       }
     ];
 
@@ -150,6 +152,8 @@ const SubmissionList: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
+      <BackButton to="/dashboard/supervisor" label="Back to Dashboard" />
+      
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Submissions</h1>
         <p className="text-muted-foreground">

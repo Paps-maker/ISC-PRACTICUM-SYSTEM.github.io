@@ -24,6 +24,7 @@ import SubmissionList from '@/pages/submissions/SubmissionList';
 import StudentSubmissions from '@/pages/submissions/StudentSubmissions';
 import GradeSubmission from '@/pages/submissions/GradeSubmission';
 import SubmissionsGrade from '@/pages/submissions/SubmissionsGrade';
+import SupervisorAnnouncements from '@/pages/announcements/SupervisorAnnouncements';
 import AttachmentLetters from '@/pages/letters/AttachmentLetters';
 import NotFound from '@/pages/NotFound';
 
@@ -57,7 +58,9 @@ function App() {
               <Route path="/submissions/edit/:submissionId" element={<EditSubmission />} />
               <Route path="/submissions/review" element={<SubmissionList />} />
               <Route path="/submissions/:submissionId" element={<GradeSubmission />} />
-              <Route path="/submissions/grade/:submissionId" element={<SubmissionsGrade />} />
+              <Route path="/submissions/:submissionId/grade" element={<GradeSubmission />} />
+              <Route path="/submissions/grade" element={<SubmissionsGrade />} />
+              <Route path="/announcements" element={<SupervisorAnnouncements />} />
               <Route path="/letters/attachment" element={<AttachmentLetters />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

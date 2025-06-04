@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Save, ChevronLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission, User, UserRole } from "@/types";
+import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
 import { BackButton } from "@/components/ui/back-button";
 
 const GradeSubmission: React.FC = () => {
@@ -47,7 +47,7 @@ const GradeSubmission: React.FC = () => {
         fileName: "weekly_report.pdf",
         fileUrl: "#",
         submittedAt: new Date().toISOString(),
-        status: "pending"
+        status: SubmissionStatus.Pending
       };
 
       // Mock activity data
@@ -102,7 +102,7 @@ const GradeSubmission: React.FC = () => {
       
       // Update local state to reflect the submission being reviewed
       setSubmission(prev => 
-        prev ? { ...prev, status: "reviewed" } : null
+        prev ? { ...prev, status: SubmissionStatus.Reviewed } : null
       );
       
       setLoading(false);
@@ -122,7 +122,7 @@ const GradeSubmission: React.FC = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <BackButton to="/submissions/grade" label="Back to submissions" />
+      <BackButton to="/dashboard/supervisor" label="Back to Dashboard" />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Submission details */}
@@ -136,8 +136,8 @@ const GradeSubmission: React.FC = () => {
                     {activity?.title}
                   </CardDescription>
                 </div>
-                <Badge variant={submission?.status === "reviewed" ? "default" : "secondary"}>
-                  {submission?.status === "reviewed" ? "Reviewed" : "Pending Review"}
+                <Badge variant={submission?.status === SubmissionStatus.Reviewed ? "default" : "secondary"}>
+                  {submission?.status === SubmissionStatus.Reviewed ? "Reviewed" : "Pending Review"}
                 </Badge>
               </div>
             </CardHeader>
@@ -218,10 +218,10 @@ const GradeSubmission: React.FC = () => {
               <Button 
                 className="w-full" 
                 onClick={handleSubmitGrade}
-                disabled={submission?.status === "reviewed"}
+                disabled={submission?.status === SubmissionStatus.Reviewed}
               >
                 <Save className="mr-2 h-4 w-4" />
-                {submission?.status === "reviewed" ? "Already Graded" : "Submit Grade"}
+                {submission?.status === SubmissionStatus.Reviewed ? "Already Graded" : "Submit Grade"}
               </Button>
             </CardFooter>
           </Card>
