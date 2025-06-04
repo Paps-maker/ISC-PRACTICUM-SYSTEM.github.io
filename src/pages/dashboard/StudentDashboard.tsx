@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Submission } from "@/types";
-import { Calendar, CheckCircle, Clock, FileText, Upload } from "lucide-react";
+import { Calendar, CheckCircle, Clock, FileText, Upload, TrendingUp } from "lucide-react";
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -75,9 +75,9 @@ const StudentDashboard: React.FC = () => {
       );
       
       // Only include activities without submissions and with future deadlines
-      return !hasSubmission && new Date(activity.deadline) > new Date();
+      return !hasSubmission && new Date(activity.deadline || activity.endDate) > new Date();
     })
-    .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+    .sort((a, b) => new Date(a.deadline || a.endDate).getTime() - new Date(b.deadline || b.endDate).getTime())
     .slice(0, 3);
 
   // Calculate submission status
@@ -85,6 +85,7 @@ const StudentDashboard: React.FC = () => {
     return submissions.some(sub => sub.activityId === activity.id);
   });
 
+  // Always show progress starting from 0 if no activities or submissions
   const submissionRate = activities.length > 0
     ? Math.round((submittedActivities.length / activities.length) * 100)
     : 0;
@@ -115,6 +116,11 @@ const StudentDashboard: React.FC = () => {
               <div className="text-sm text-muted-foreground">
                 {submittedActivities.length} of {activities.length} activities completed
               </div>
+              {activities.length === 0 && (
+                <div className="text-xs text-muted-foreground mt-2 text-center">
+                  No activities assigned yet
+                </div>
+              )}
             </div>
           }
         />
@@ -131,7 +137,7 @@ const StudentDashboard: React.FC = () => {
                       <div>
                         <div className="font-medium">{activity.title}</div>
                         <div className="text-xs text-muted-foreground">
-                          Due: {new Date(activity.deadline).toLocaleDateString()}
+                          Due: {new Date(activity.deadline || activity.endDate).toLocaleDateString()}
                         </div>
                       </div>
                     </li>
@@ -139,7 +145,7 @@ const StudentDashboard: React.FC = () => {
                 </ul>
               ) : (
                 <div className="text-center text-muted-foreground">
-                  No upcoming deadlines
+                  {activities.length === 0 ? "No activities yet" : "No upcoming deadlines"}
                 </div>
               )}
             </div>
@@ -218,9 +224,9 @@ const StudentDashboard: React.FC = () => {
           </Button>
         </Link>
         
-        <Link to="/profile" className="w-full">
+        <Link to="/submissions" className="w-full">
           <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
-            <CheckCircle className="h-6 w-6" />
+            <TrendingUp className="h-6 w-6" />
             <span>My Progress</span>
           </Button>
         </Link>
@@ -229,68 +235,80 @@ const StudentDashboard: React.FC = () => {
       {/* Activity List Preview */}
       <h2 className="text-xl font-semibold mb-4">Recent Activities</h2>
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">Activity</th>
-                <th className="px-4 py-3 text-left font-medium">Deadline</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activities.slice(0, 3).map(activity => {
-                const submission = submissions.find(s => s.activityId === activity.id);
-                const isPastDeadline = new Date(activity.deadline) < new Date();
-                let status = "Not Started";
-                let statusColor = "bg-gray-100 text-gray-800";
-                
-                if (submission) {
-                  status = submission.status === "reviewed" ? "Reviewed" : "Submitted";
-                  statusColor = submission.status === "reviewed" 
-                    ? "bg-green-100 text-green-800" 
-                    : "bg-blue-100 text-blue-800";
-                } else if (isPastDeadline) {
-                  status = "Overdue";
-                  statusColor = "bg-red-100 text-red-800";
-                }
-                
-                return (
-                  <tr key={activity.id} className="border-t">
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{activity.title}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-xs">
-                        {activity.description}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center">
-                        <Calendar size={14} className="mr-1" />
-                        <span>{new Date(activity.deadline).toLocaleDateString()}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`${statusColor} text-xs px-2 py-1 rounded-full`}>
-                        {status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link to={`/activities/${activity.id}`}>
-                        <Button size="sm">View</Button>
-                      </Link>
-                    </td>
+        {activities.length > 0 ? (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-medium">Activity</th>
+                    <th className="px-4 py-3 text-left font-medium">Deadline</th>
+                    <th className="px-4 py-3 text-left font-medium">Status</th>
+                    <th className="px-4 py-3 text-right font-medium">Action</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-4 py-3 bg-gray-50 text-center">
-          <Link to="/activities">
-            <Button variant="link">View All Activities</Button>
-          </Link>
-        </div>
+                </thead>
+                <tbody>
+                  {activities.slice(0, 3).map(activity => {
+                    const submission = submissions.find(s => s.activityId === activity.id);
+                    const isPastDeadline = new Date(activity.deadline || activity.endDate) < new Date();
+                    let status = "Not Started";
+                    let statusColor = "bg-gray-100 text-gray-800";
+                    
+                    if (submission) {
+                      status = submission.status === "reviewed" ? "Reviewed" : "Submitted";
+                      statusColor = submission.status === "reviewed" 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-blue-100 text-blue-800";
+                    } else if (isPastDeadline) {
+                      status = "Overdue";
+                      statusColor = "bg-red-100 text-red-800";
+                    }
+                    
+                    return (
+                      <tr key={activity.id} className="border-t">
+                        <td className="px-4 py-3">
+                          <div className="font-medium">{activity.title}</div>
+                          <div className="text-sm text-muted-foreground truncate max-w-xs">
+                            {activity.description}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center">
+                            <Calendar size={14} className="mr-1" />
+                            <span>{new Date(activity.deadline || activity.endDate).toLocaleDateString()}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`${statusColor} text-xs px-2 py-1 rounded-full`}>
+                            {status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Link to={`/activities/${activity.id}`}>
+                            <Button size="sm">View</Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="px-4 py-3 bg-gray-50 text-center">
+              <Link to="/activities">
+                <Button variant="link">View All Activities</Button>
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="p-8 text-center">
+            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No Activities Yet</h3>
+            <p className="text-muted-foreground">
+              Your instructor hasn't created any activities yet. Check back later!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import StudentList from '@/pages/students/StudentList';
 import SubmissionForm from '@/pages/submissions/SubmissionForm';
 import EditSubmission from '@/pages/submissions/EditSubmission';
 import SubmissionList from '@/pages/submissions/SubmissionList';
+import StudentSubmissions from '@/pages/submissions/StudentSubmissions';
 import GradeSubmission from '@/pages/submissions/GradeSubmission';
 import SubmissionsGrade from '@/pages/submissions/SubmissionsGrade';
 import AttachmentLetters from '@/pages/letters/AttachmentLetters';
@@ -51,6 +52,7 @@ function App() {
               <Route path="/activities/edit/:id" element={<EditActivity />} />
               <Route path="/activities/manage" element={<ManageActivities />} />
               <Route path="/students" element={<StudentList />} />
+              <Route path="/submissions" element={<StudentSubmissions />} />
               <Route path="/submissions/new" element={<SubmissionForm />} />
               <Route path="/submissions/edit/:submissionId" element={<EditSubmission />} />
               <Route path="/submissions/review" element={<SubmissionList />} />
