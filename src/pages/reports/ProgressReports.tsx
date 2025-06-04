@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/ui/back-button";
 import { useAuth } from "@/contexts/AuthContext";
 import { studentStore } from "@/stores/studentStore";
-import { Activity, Submission, User, UserRole, Evaluation } from "@/types";
-import { FileBarChart, Download, TrendingUp, Users } from "lucide-react";
+import { Activity, Submission, User, UserRole, Evaluation, SubmissionStatus } from "@/types";
+import { FileBarChart, Download, TrendingUp, Users, CheckCircle, Clock } from "lucide-react";
 
 const ProgressReports: React.FC = () => {
   const { user } = useAuth();
@@ -60,7 +60,7 @@ const ProgressReports: React.FC = () => {
       fileName: "company_intro.pdf",
       fileUrl: "#",
       submittedAt: "2025-06-08T14:30:00Z",
-      status: "reviewed",
+      status: SubmissionStatus.Reviewed,
       grade: 85
     },
     {
@@ -70,7 +70,7 @@ const ProgressReports: React.FC = () => {
       fileName: "company_intro_emma.pdf",
       fileUrl: "#",
       submittedAt: "2025-06-09T10:15:00Z",
-      status: "pending"
+      status: SubmissionStatus.Pending
     },
     {
       id: "3",
@@ -79,7 +79,7 @@ const ProgressReports: React.FC = () => {
       fileName: "department_overview.docx",
       fileUrl: "#",
       submittedAt: "2025-06-15T16:45:00Z",
-      status: "pending"
+      status: SubmissionStatus.Pending
     }
   ]);
 
@@ -131,6 +131,36 @@ const ProgressReports: React.FC = () => {
     };
   };
 
+  // Calculate activity completion statistics
+  const getActivityCompletionStats = () => {
+    const activityStats = activities.map(activity => {
+      const activitySubmissions = submissions.filter(sub => sub.activityId === activity.id);
+      const completedSubmissions = activitySubmissions.filter(sub => 
+        sub.status === SubmissionStatus.Reviewed || sub.status === SubmissionStatus.Graded
+      );
+      
+      return {
+        activity,
+        totalStudents: students.length,
+        completedCount: completedSubmissions.length,
+        remainingCount: students.length - completedSubmissions.length,
+        completionPercentage: students.length > 0 ? Math.round((completedSubmissions.length / students.length) * 100) : 0
+      };
+    });
+
+    const overallCompleted = activityStats.reduce((acc, stat) => acc + stat.completedCount, 0);
+    const overallRemaining = activityStats.reduce((acc, stat) => acc + stat.remainingCount, 0);
+    const totalPossible = activities.length * students.length;
+
+    return {
+      activityStats,
+      overallCompleted,
+      overallRemaining,
+      totalPossible,
+      overallCompletionPercentage: totalPossible > 0 ? Math.round((overallCompleted / totalPossible) * 100) : 0
+    };
+  };
+
   const handleExportReport = () => {
     // In a real app, this would generate and download a PDF or Excel file
     console.log("Exporting progress report...");
@@ -160,6 +190,8 @@ const ProgressReports: React.FC = () => {
     );
   }
 
+  const completionStats = getActivityCompletionStats();
+
   return (
     <div className="container mx-auto py-10">
       <BackButton to={getDashboardUrl()} label="Back to Dashboard" />
@@ -179,6 +211,69 @@ const ProgressReports: React.FC = () => {
           Export Report
         </Button>
       </div>
+
+      {/* Overall Activity Completion Overview */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Activity Completion Overview
+          </CardTitle>
+          <CardDescription>
+            Track how many activities have been completed vs remaining across all students
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">{completionStats.overallCompleted}</div>
+              <div className="text-sm text-muted-foreground">Completed Submissions</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">{completionStats.overallRemaining}</div>
+              <div className="text-sm text-muted-foreground">Remaining Submissions</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{completionStats.totalPossible}</div>
+              <div className="text-sm text-muted-foreground">Total Expected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{completionStats.overallCompletionPercentage}%</div>
+              <div className="text-sm text-muted-foreground">Overall Completion</div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="font-semibold">Activity Breakdown</h4>
+            {completionStats.activityStats.map((stat) => (
+              <div key={stat.activity.id} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h5 className="font-medium">{stat.activity.title}</h5>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      {stat.completedCount} completed
+                    </Badge>
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {stat.remainingCount} remaining
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Progress value={stat.completionPercentage} className="flex-grow h-2" />
+                  <span className="text-sm font-medium w-12 text-right">
+                    {stat.completionPercentage}%
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {stat.completedCount} of {stat.totalStudents} students completed
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
