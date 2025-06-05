@@ -6,7 +6,7 @@ import { BackButton } from "@/components/ui/back-button";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Evaluation, Submission, User, UserRole, SubmissionStatus } from "@/types";
-import { CheckCircle, Download, FileText, Star, Users, Megaphone, Settings } from "lucide-react";
+import { CheckCircle, Download, FileText, Star, Users, Megaphone, Settings, Calendar, TrendingUp } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 const SupervisorDashboard: React.FC = () => {
@@ -144,6 +144,43 @@ const SupervisorDashboard: React.FC = () => {
     ? evaluations.reduce((acc, evaluation) => acc + evaluation.grade, 0) / submissionsWithGrades.length
     : 0;
 
+  // Calculate activity progress statistics
+  const totalExpectedSubmissions = activities.length * students.length;
+  const completedSubmissions = submissions.filter(sub => 
+    sub.status === SubmissionStatus.Reviewed || sub.status === SubmissionStatus.Graded
+  ).length;
+  const overallCompletionPercentage = totalExpectedSubmissions > 0 
+    ? Math.round((completedSubmissions / totalExpectedSubmissions) * 100) 
+    : 0;
+
+  // Check if activity has started based on current date
+  const isActivityStarted = (activity: Activity) => {
+    const now = new Date();
+    const startDate = new Date(activity.startDate);
+    return now >= startDate;
+  };
+
+  // Calculate completion for each activity
+  const getActivityProgress = (activity: Activity) => {
+    const activitySubmissions = submissions.filter(sub => sub.activityId === activity.id);
+    const completedCount = activitySubmissions.filter(sub => 
+      sub.status === SubmissionStatus.Reviewed || sub.status === SubmissionStatus.Graded
+    ).length;
+    
+    const hasStarted = isActivityStarted(activity);
+    const percentage = hasStarted && students.length > 0 
+      ? Math.round((completedCount / students.length) * 100)
+      : 0;
+    
+    return {
+      completed: completedCount,
+      total: students.length,
+      percentage,
+      hasStarted,
+      submissions: activitySubmissions.length
+    };
+  };
+
   // Recently graded submissions
   const recentlyGraded = [...evaluations]
     .sort((a, b) => new Date(b.evaluatedAt).getTime() - new Date(a.evaluatedAt).getTime())
@@ -161,7 +198,7 @@ const SupervisorDashboard: React.FC = () => {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <DashboardCard
           title="Student Overview"
           content={
@@ -171,6 +208,20 @@ const SupervisorDashboard: React.FC = () => {
               </div>
               <div className="text-sm text-muted-foreground">
                 Registered Students
+              </div>
+            </div>
+          }
+        />
+
+        <DashboardCard
+          title="Activity Completion"
+          content={
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="text-4xl font-bold text-green-600 mb-2">
+                {overallCompletionPercentage}%
+              </div>
+              <div className="text-sm text-muted-foreground text-center">
+                {completedSubmissions} of {totalExpectedSubmissions} submissions completed
               </div>
             </div>
           }
@@ -210,6 +261,108 @@ const SupervisorDashboard: React.FC = () => {
             </div>
           }
         />
+      </div>
+
+      {/* Activity Progress Overview */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5" />
+          Activity Progress Overview
+        </h2>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-4 border-b bg-muted/50">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">{activities.length}</div>
+                <div className="text-sm text-muted-foreground">Total Activities</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-600">{completedSubmissions}</div>
+                <div className="text-sm text-muted-foreground">Completed Submissions</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">{totalExpectedSubmissions - completedSubmissions}</div>
+                <div className="text-sm text-muted-foreground">Remaining Submissions</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-purple-600">{overallCompletionPercentage}%</div>
+                <div className="text-sm text-muted-foreground">Overall Completion</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-4">
+            <h3 className="font-semibold mb-3">Individual Activity Breakdown</h3>
+            <div className="space-y-4">
+              {activities.map(activity => {
+                const progress = getActivityProgress(activity);
+                const isOverdue = new Date() > new Date(activity.deadline || activity.endDate);
+                
+                return (
+                  <div key={activity.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{activity.title}</h4>
+                          {!progress.hasStarted && (
+                            <Badge variant="outline" className="text-xs">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              Not Started
+                            </Badge>
+                          )}
+                          {progress.hasStarted && isOverdue && progress.percentage < 100 && (
+                            <Badge variant="destructive" className="text-xs">
+                              Overdue
+                            </Badge>
+                          )}
+                          {progress.percentage === 100 && (
+                            <Badge variant="default" className="text-xs">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Complete
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          Deadline: {new Date(activity.deadline || activity.endDate).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold">
+                          {progress.hasStarted ? `${progress.completed}/${progress.total}` : '0/0'}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {progress.hasStarted ? 'Completed' : 'Not started'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <Progress 
+                        value={progress.hasStarted ? progress.percentage : 0} 
+                        className="h-3 flex-grow"
+                      />
+                      <span className="text-sm font-medium w-12 text-right">
+                        {progress.hasStarted ? `${progress.percentage}%` : '0%'}
+                      </span>
+                    </div>
+                    
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      {progress.hasStarted ? (
+                        <>
+                          {progress.submissions} submissions received • 
+                          {progress.completed} reviewed • 
+                          {progress.total - progress.completed} pending
+                        </>
+                      ) : (
+                        `Activity starts ${new Date(activity.startDate).toLocaleDateString()}`
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
@@ -254,6 +407,7 @@ const SupervisorDashboard: React.FC = () => {
       {/* Pending Submissions */}
       <h2 className="text-xl font-semibold mb-4">Submissions Awaiting Review</h2>
       <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+        
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted">
@@ -328,6 +482,7 @@ const SupervisorDashboard: React.FC = () => {
         <div className="w-full lg:w-2/3">
           <h2 className="text-xl font-semibold mb-4">Recently Graded Submissions</h2>
           <div className="bg-white rounded-lg shadow overflow-hidden">
+            
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-muted">
@@ -392,6 +547,7 @@ const SupervisorDashboard: React.FC = () => {
         <div className="w-full lg:w-1/3">
           <h2 className="text-xl font-semibold mb-4">Student Progress</h2>
           <div className="bg-white rounded-lg shadow">
+            
             <div className="p-4 max-h-[320px] overflow-y-auto">
               {students.map(student => {
                 const studentSubmissions = submissions.filter(sub => sub.studentId === student.id);
