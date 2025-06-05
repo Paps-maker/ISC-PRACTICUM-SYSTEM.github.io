@@ -45,7 +45,8 @@ const StudentList: React.FC = () => {
   
   const filteredStudents = students.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (student.schoolId && student.schoolId.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleStudentAdded = () => {
@@ -137,6 +138,7 @@ const StudentList: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>School ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Registration Date</TableHead>
@@ -147,6 +149,7 @@ const StudentList: React.FC = () => {
                 {filteredStudents.length > 0 ? (
                   filteredStudents.map((student) => (
                     <TableRow key={student.id}>
+                      <TableCell className="font-medium">{student.schoolId || 'N/A'}</TableCell>
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>{student.email}</TableCell>
                       <TableCell>{new Date(student.registrationDate || Date.now()).toLocaleDateString()}</TableCell>
@@ -181,7 +184,7 @@ const StudentList: React.FC = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       No students found
                     </TableCell>
                   </TableRow>

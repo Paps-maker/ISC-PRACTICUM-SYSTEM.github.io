@@ -25,12 +25,13 @@ const StudentManagement: React.FC<StudentManagementProps> = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentEmail, setNewStudentEmail] = useState("");
+  const [newStudentSchoolId, setNewStudentSchoolId] = useState("");
   const { toast } = useToast();
 
   const handleAddStudent = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newStudentName.trim() || !newStudentEmail.trim()) {
+    if (!newStudentName.trim() || !newStudentEmail.trim() || !newStudentSchoolId.trim()) {
       toast({
         title: "Error",
         description: "Please fill in all fields.",
@@ -40,11 +41,22 @@ const StudentManagement: React.FC<StudentManagementProps> = ({
     }
 
     // Check if email already exists
-    const existingStudent = students.find(s => s.email === newStudentEmail);
-    if (existingStudent) {
+    const existingStudentByEmail = students.find(s => s.email === newStudentEmail);
+    if (existingStudentByEmail) {
       toast({
         title: "Error",
         description: "A student with this email already exists.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if school ID already exists (as it should be a primary key)
+    const existingStudentBySchoolId = students.find(s => s.schoolId === newStudentSchoolId);
+    if (existingStudentBySchoolId) {
+      toast({
+        title: "Error",
+        description: "A student with this school ID already exists.",
         variant: "destructive",
       });
       return;
@@ -54,6 +66,7 @@ const StudentManagement: React.FC<StudentManagementProps> = ({
       id: `student_${Date.now()}`,
       name: newStudentName.trim(),
       email: newStudentEmail.trim(),
+      schoolId: newStudentSchoolId.trim(),
       role: UserRole.Student,
       registrationDate: new Date().toISOString().split('T')[0]
     };
@@ -62,11 +75,12 @@ const StudentManagement: React.FC<StudentManagementProps> = ({
     
     toast({
       title: "Student added",
-      description: `${newStudentName} has been successfully added.`,
+      description: `${newStudentName} (ID: ${newStudentSchoolId}) has been successfully added.`,
     });
 
     setNewStudentName("");
     setNewStudentEmail("");
+    setNewStudentSchoolId("");
     setIsAddDialogOpen(false);
     onStudentAdded();
   };
@@ -94,12 +108,22 @@ const StudentManagement: React.FC<StudentManagementProps> = ({
           <DialogHeader>
             <DialogTitle>Add New Student</DialogTitle>
             <DialogDescription>
-              Add a new student to the system. They will be able to access student features once registered.
+              Add a new student to the system. The school ID will serve as a unique identifier.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAddStudent} className="space-y-4">
             <div>
-              <Label htmlFor="studentName">Full Name</Label>
+              <Label htmlFor="studentSchoolId">School ID *</Label>
+              <Input
+                id="studentSchoolId"
+                value={newStudentSchoolId}
+                onChange={(e) => setNewStudentSchoolId(e.target.value)}
+                placeholder="Enter student's school ID"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="studentName">Full Name *</Label>
               <Input
                 id="studentName"
                 value={newStudentName}
@@ -109,7 +133,7 @@ const StudentManagement: React.FC<StudentManagementProps> = ({
               />
             </div>
             <div>
-              <Label htmlFor="studentEmail">Email Address</Label>
+              <Label htmlFor="studentEmail">Email Address *</Label>
               <Input
                 id="studentEmail"
                 type="email"

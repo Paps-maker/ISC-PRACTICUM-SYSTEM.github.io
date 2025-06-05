@@ -32,16 +32,24 @@ class StudentStore {
 
   // Add a new student (when they register)
   addStudent(student: User) {
-    // Check if student already exists
-    const exists = this.students.some(s => s.email === student.email);
-    if (!exists) {
-      this.students.push({
-        ...student,
-        registrationDate: new Date().toISOString().split('T')[0] // Today's date
-      });
-      this.saveToStorage();
-      this.notifyListeners();
+    // Check if student already exists by email
+    const existsByEmail = this.students.some(s => s.email === student.email);
+    if (existsByEmail) {
+      throw new Error('A student with this email already exists');
     }
+    
+    // Check if student already exists by school ID (primary key)
+    const existsBySchoolId = this.students.some(s => s.schoolId === student.schoolId);
+    if (existsBySchoolId) {
+      throw new Error('A student with this school ID already exists');
+    }
+
+    this.students.push({
+      ...student,
+      registrationDate: new Date().toISOString().split('T')[0] // Today's date
+    });
+    this.saveToStorage();
+    this.notifyListeners();
   }
 
   // Subscribe to changes
