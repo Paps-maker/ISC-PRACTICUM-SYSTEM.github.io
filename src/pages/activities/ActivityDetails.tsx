@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission, Evaluation, UserRole } from "@/types";
+import { Activity, Submission, Evaluation, UserRole, SubmissionStatus } from "@/types";
 import { Calendar, CheckCircle, Download, FileText, Upload, X } from "lucide-react";
 import { format } from "date-fns";
 
@@ -52,12 +51,13 @@ const ActivityDetails: React.FC = () => {
           fileName: "company_intro.pdf",
           fileUrl: "#",
           submittedAt: "2025-06-08T14:30:00Z",
-          status: "reviewed"
+          status: SubmissionStatus.Reviewed
         };
         
         mockEvaluation = {
           id: "1",
           submissionId: "1",
+          evaluatedBy: "3",
           supervisorId: "3",
           grade: 85,
           feedback: "Good effort on describing the company's history and mission. Your analysis of the company's market position is insightful. However, you could elaborate more on the company's core values and how they are applied in daily operations. Also, consider including more specific examples of products or services.",
@@ -115,7 +115,7 @@ const ActivityDetails: React.FC = () => {
       };
     }
     
-    return submission.status === "reviewed" ? {
+    return submission.status === SubmissionStatus.Reviewed ? {
       label: "Reviewed",
       variant: "default" as const,
       icon: <CheckCircle size={16} />
@@ -222,7 +222,7 @@ const ActivityDetails: React.FC = () => {
                 )}
               </CardContent>
               <CardFooter>
-                {submission.status === "pending" && user?.role === UserRole.Student && (
+                {submission.status === SubmissionStatus.Pending && user?.role === UserRole.Student && (
                   <Link to={`/submissions/edit/${submission.id}`} className="w-full">
                     <Button variant="outline" className="w-full">
                       Edit Submission

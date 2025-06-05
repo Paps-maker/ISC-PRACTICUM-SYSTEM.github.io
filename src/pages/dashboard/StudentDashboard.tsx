@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -258,8 +257,8 @@ const StudentDashboard: React.FC = () => {
                     let statusColor = "bg-gray-100 text-gray-800";
                     
                     if (submission) {
-                      status = submission.status === "reviewed" ? "Reviewed" : "Submitted";
-                      statusColor = submission.status === "reviewed" 
+                      status = submission.status === SubmissionStatus.Reviewed ? "Reviewed" : "Submitted";
+                      statusColor = submission.status === SubmissionStatus.Reviewed 
                         ? "bg-green-100 text-green-800" 
                         : "bg-blue-100 text-blue-800";
                     } else if (isPastDeadline) {

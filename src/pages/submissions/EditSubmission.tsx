@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import {
 import { FileUpload } from "@/components/FileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Submission } from "@/types";
+import { Activity, Submission, SubmissionStatus } from "@/types";
 import { FileText } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 
@@ -55,7 +54,7 @@ const EditSubmission: React.FC = () => {
         fileName: "company_intro_v1.pdf",
         fileUrl: "#",
         submittedAt: "2025-06-08T14:30:00Z",
-        status: "pending"
+        status: SubmissionStatus.Pending
       };
 
       // Mock activity data
