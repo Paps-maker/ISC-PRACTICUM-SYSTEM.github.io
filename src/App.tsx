@@ -26,6 +26,7 @@ import GradeSubmission from '@/pages/submissions/GradeSubmission';
 import SubmissionsGrade from '@/pages/submissions/SubmissionsGrade';
 import SupervisorAnnouncements from '@/pages/announcements/SupervisorAnnouncements';
 import AttachmentLetters from '@/pages/letters/AttachmentLetters';
+import ProgressReports from '@/pages/reports/ProgressReports';
 import NotFound from '@/pages/NotFound';
 
 import './App.css';
@@ -62,6 +63,7 @@ function App() {
               <Route path="/submissions/grade" element={<SubmissionsGrade />} />
               <Route path="/announcements" element={<SupervisorAnnouncements />} />
               <Route path="/letters/attachment" element={<AttachmentLetters />} />
+              <Route path="/reports" element={<ProgressReports />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
