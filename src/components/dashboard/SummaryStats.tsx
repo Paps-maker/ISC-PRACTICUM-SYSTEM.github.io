@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import DashboardCard from "@/components/dashboard/DashboardCard";
-import { Activity, Submission } from "@/types";
+import { Activity, Submission, SubmissionStatus } from "@/types";
 import { studentStore } from "@/stores/studentStore";
 
 interface SummaryStatsProps {
@@ -25,8 +25,8 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ activities, submissions }) 
 
   // Calculate submission statistics
   const totalSubmissions = submissions.length;
-  const pendingSubmissions = submissions.filter(sub => sub.status === "pending").length;
-  const reviewedSubmissions = submissions.filter(sub => sub.status === "reviewed").length;
+  const pendingSubmissions = submissions.filter(sub => sub.status === SubmissionStatus.Pending).length;
+  const reviewedSubmissions = submissions.filter(sub => sub.status === SubmissionStatus.Reviewed).length;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

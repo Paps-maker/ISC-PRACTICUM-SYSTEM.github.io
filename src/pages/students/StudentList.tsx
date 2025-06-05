@@ -11,14 +11,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Printer, UserPlus, Users } from "lucide-react";
-import { User } from "@/types";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Search, Printer, Users, Trash2 } from "lucide-react";
+import { User, UserRole } from "@/types";
 import { studentStore } from "@/stores/studentStore";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import StudentManagement from "@/components/students/StudentManagement";
+import { AccessDenied } from "@/components/ui/access-denied";
 
 const StudentList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [students, setStudents] = useState<User[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
   
   // Load students from store and subscribe to changes
   useEffect(() => {
@@ -30,11 +37,27 @@ const StudentList: React.FC = () => {
     
     return unsubscribe;
   }, []);
+
+  // Check access permissions
+  if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
+    return <AccessDenied allowedRoles={[UserRole.Instructor, UserRole.Supervisor]} />;
+  }
   
   const filteredStudents = students.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleStudentAdded = () => {
+    // Refresh the student list
+    setStudents(studentStore.getStudents());
+  };
+
+  const handleStudentRemoved = (studentId: string) => {
+    // In a real app, this would remove from the store
+    // For now, just refresh the list
+    setStudents(studentStore.getStudents());
+  };
   
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
@@ -80,10 +103,11 @@ const StudentList: React.FC = () => {
             <Printer className="mr-2 h-4 w-4" />
             Print
           </Button>
-          <Button>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Student
-          </Button>
+          <StudentManagement 
+            students={students}
+            onStudentAdded={handleStudentAdded}
+            onStudentRemoved={handleStudentRemoved}
+          />
         </div>
       </div>
 
@@ -116,6 +140,7 @@ const StudentList: React.FC = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Registration Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -125,11 +150,38 @@ const StudentList: React.FC = () => {
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>{student.email}</TableCell>
                       <TableCell>{new Date(student.registrationDate || Date.now()).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-800">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove Student</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove {student.name} from the system? 
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleStudentRemoved(student.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Remove
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                       No students found
                     </TableCell>
                   </TableRow>
