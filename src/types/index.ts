@@ -5,6 +5,7 @@ export interface User {
   email: string;
   role: UserRole;
   registrationDate?: string;
+  schoolId?: string;
 }
 
 export enum UserRole {
@@ -58,7 +59,7 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
+  register: (name: string, email: string, password: string, role: UserRole, schoolId?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }

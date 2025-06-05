@@ -29,6 +29,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [schoolId, setSchoolId] = useState("");
   const [role, setRole] = useState<UserRole | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
@@ -55,10 +56,19 @@ const Register: React.FC = () => {
       return;
     }
 
+    if (role === UserRole.Student && !schoolId.trim()) {
+      toast({
+        variant: "destructive",
+        title: "School ID is required",
+        description: "Students must provide their school ID number.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      await register(name, email, password, role as UserRole);
+      await register(name, email, password, role as UserRole, schoolId);
       
       toast({
         title: "Registration successful",
@@ -149,6 +159,19 @@ const Register: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {role === UserRole.Student && (
+              <div className="space-y-2">
+                <Label htmlFor="schoolId">School ID Number *</Label>
+                <Input
+                  id="schoolId"
+                  placeholder="Enter your school ID"
+                  value={schoolId}
+                  onChange={(e) => setSchoolId(e.target.value)}
+                  required
+                />
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isSubmitting}>

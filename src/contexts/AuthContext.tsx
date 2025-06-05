@@ -11,7 +11,8 @@ const mockUsers = [
     name: "John Student",
     email: "student@example.com",
     password: "password123",
-    role: UserRole.Student
+    role: UserRole.Student,
+    schoolId: "STU2025001"
   },
   {
     id: "2",
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const register = async (name: string, email: string, password: string, role: UserRole) => {
+  const register = async (name: string, email: string, password: string, role: UserRole, schoolId?: string) => {
     setLoading(true);
     
     // Simulate API call
@@ -86,7 +87,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name,
           email,
           password,
-          role
+          role,
+          ...(schoolId && { schoolId })
         };
         
         mockUsers.push(newUser);
@@ -110,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    // Navigation will be handled by the NavBar component
+    // Navigation will be handled by the component that calls logout
   };
 
   const value = {
