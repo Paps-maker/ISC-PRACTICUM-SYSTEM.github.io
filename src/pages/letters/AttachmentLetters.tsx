@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,6 +70,7 @@ const AttachmentLetters: React.FC = () => {
         description: "Write a brief introduction about the company you are interning with.",
         startDate: "2025-06-03T10:00:00Z",
         endDate: "2025-06-10T23:59:59Z",
+        deadline: "2025-06-10T23:59:59Z",
         createdAt: "2025-05-01T10:00:00Z",
         createdBy: "2"
       },
@@ -80,6 +80,7 @@ const AttachmentLetters: React.FC = () => {
         description: "Describe the department you are working in and its role within the company.",
         startDate: "2025-06-10T10:00:00Z",
         endDate: "2025-06-17T23:59:59Z",
+        deadline: "2025-06-17T23:59:59Z",
         createdAt: "2025-05-01T10:05:00Z",
         createdBy: "2"
       },
@@ -89,6 +90,7 @@ const AttachmentLetters: React.FC = () => {
         description: "Document and analyze the daily tasks you are performing.",
         startDate: "2025-06-17T10:00:00Z",
         endDate: "2025-06-24T23:59:59Z",
+        deadline: "2025-06-24T23:59:59Z",
         createdAt: "2025-05-01T10:10:00Z",
         createdBy: "2"
       },
@@ -98,6 +100,7 @@ const AttachmentLetters: React.FC = () => {
         description: "Reflect on the skills you have developed during your practicum.",
         startDate: "2025-06-24T10:00:00Z",
         endDate: "2025-07-01T23:59:59Z",
+        deadline: "2025-07-01T23:59:59Z",
         createdAt: "2025-05-01T10:15:00Z",
         createdBy: "2"
       }

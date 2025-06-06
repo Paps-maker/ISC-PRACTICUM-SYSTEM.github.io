@@ -89,9 +89,10 @@ export interface Announcement {
   createdBy: string;
   priority: 'low' | 'medium' | 'high';
   targetRole?: UserRole;
+  targetAudience: UserRole[];
 }
 
 export interface SubmissionFormProps {
-  activityId: string;
-  onSubmissionSuccess: () => void;
+  activityId?: string;
+  onSubmissionSuccess?: () => void;
 }
