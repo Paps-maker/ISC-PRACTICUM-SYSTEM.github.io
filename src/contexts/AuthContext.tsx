@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, UserRole, AuthContextType } from "../types";
+import { User, UserRole, AuthContextType } from "@/types";
 import { studentStore } from "@/stores/studentStore";
 
 // Mock user data (would use an actual API in production)
