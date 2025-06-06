@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -14,11 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Save, ChevronLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FileText, Download, Save, ChevronLeft, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
 import { BackButton } from "@/components/ui/back-button";
+import { notificationStore } from "@/stores/notificationStore";
 
 const GradeSubmission: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +34,7 @@ const GradeSubmission: React.FC = () => {
   const [student, setStudent] = useState<User | null>(null);
   const [grade, setGrade] = useState<number>(70);
   const [feedback, setFeedback] = useState<string>("");
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
 
   // Extract submission ID from URL if available
   const submissionId = location.pathname.split("/").pop();
@@ -95,14 +99,24 @@ const GradeSubmission: React.FC = () => {
     
     // Simulate API call
     setTimeout(() => {
+      // Send notification to student
+      if (student && activity) {
+        notificationStore.notifyStudentOfGrade(
+          student.id,
+          activity.title,
+          grade,
+          feedback
+        );
+      }
+
       toast({
         title: "Submission graded",
-        description: `You've successfully graded the submission with ${grade}%.`,
+        description: `You've successfully graded the submission with ${grade}%. The student has been notified.`,
       });
       
       // Update local state to reflect the submission being reviewed
       setSubmission(prev => 
-        prev ? { ...prev, status: SubmissionStatus.Reviewed } : null
+        prev ? { ...prev, status: SubmissionStatus.Reviewed, grade, feedback } : null
       );
       
       setLoading(false);
@@ -110,6 +124,16 @@ const GradeSubmission: React.FC = () => {
       // Navigate back to the submissions list
       navigate("/submissions/grade");
     }, 1500);
+  };
+
+  const handleDownloadSubmission = () => {
+    // In a real app, this would download the actual file
+    toast({
+      title: "Download started",
+      description: `Downloading ${submission?.fileName}...`,
+    });
+    // Mock download - in real app would trigger actual file download
+    console.log(`Downloading file: ${submission?.fileName}`);
   };
 
   if (loading) {
@@ -161,13 +185,73 @@ const GradeSubmission: React.FC = () => {
                 <h3 className="font-medium">Submitted File</h3>
                 <div className="flex items-center gap-2 mt-2 p-3 border rounded-md bg-muted/50">
                   <FileText className="h-5 w-5 text-muted-foreground" />
-                  <span>{submission?.fileName}</span>
-                  <Button variant="ghost" size="sm" className="ml-auto">
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
-                  </Button>
+                  <span className="flex-grow">{submission?.fileName}</span>
+                  <div className="flex gap-2">
+                    <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[80vh]">
+                        <DialogHeader>
+                          <DialogTitle>View Submission: {submission?.fileName}</DialogTitle>
+                          <DialogDescription>
+                            Submitted by {student?.name} for {activity?.title}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="mt-4 p-4 border rounded-lg bg-muted/20 h-96 overflow-auto">
+                          <div className="text-center text-muted-foreground">
+                            <FileText className="h-16 w-16 mx-auto mb-4" />
+                            <p className="text-lg font-medium mb-2">File Preview</p>
+                            <p className="text-sm mb-4">
+                              In a real application, this would show the actual content of the submitted file.
+                            </p>
+                            <div className="text-left bg-background p-4 rounded border">
+                              <h4 className="font-semibold mb-2">Sample Content Preview:</h4>
+                              <p className="text-sm leading-relaxed">
+                                This is a mock preview of the submitted document. In a real implementation, 
+                                you would integrate with document viewers like:
+                              </p>
+                              <ul className="text-sm mt-2 ml-4 list-disc">
+                                <li>PDF.js for PDF files</li>
+                                <li>Google Docs Viewer API</li>
+                                <li>Microsoft Office Online for Word/Excel files</li>
+                                <li>Custom text readers for plain text files</li>
+                              </ul>
+                              <p className="text-sm mt-3 text-muted-foreground">
+                                File: {submission?.fileName}<br/>
+                                Submitted: {submission && new Date(submission.submittedAt).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    <Button variant="outline" size="sm" onClick={handleDownloadSubmission}>
+                      <Download className="h-4 w-4 mr-1" />
+                      Download
+                    </Button>
+                  </div>
                 </div>
               </div>
+
+              {/* Show existing grade and feedback if already reviewed */}
+              {submission?.status === SubmissionStatus.Reviewed && (
+                <div className="mt-4 p-4 border rounded-lg bg-green-50">
+                  <h3 className="font-medium text-green-800 mb-2">Previous Grade & Feedback</h3>
+                  <div className="space-y-2">
+                    <p><strong>Grade:</strong> {submission.grade}/100</p>
+                    {submission.feedback && (
+                      <div>
+                        <strong>Feedback:</strong>
+                        <p className="text-sm mt-1 text-muted-foreground">{submission.feedback}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -1,19 +1,21 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BackButton } from "@/components/ui/back-button";
 import { AccessDenied } from "@/components/ui/access-denied";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
-import { FileText, Calendar, Download, Star, Filter } from "lucide-react";
+import { FileText, Calendar, Download, Star, Filter, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 const SubmissionsGrade: React.FC = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<User[]>([]);
@@ -21,6 +23,8 @@ const SubmissionsGrade: React.FC = () => {
   const [filteredSubmissions, setFilteredSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "reviewed">("pending");
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<{submission: Submission, activity: Activity, student: User} | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -145,6 +149,20 @@ const SubmissionsGrade: React.FC = () => {
     setFilteredSubmissions(filtered);
   }, [searchQuery, submissions, activities, students, filterStatus]);
 
+  const handleViewSubmission = (submission: Submission, activity: Activity, student: User) => {
+    setSelectedSubmission({ submission, activity, student });
+    setViewDialogOpen(true);
+  };
+
+  const handleDownloadSubmission = (submission: Submission) => {
+    toast({
+      title: "Download started",
+      description: `Downloading ${submission.fileName}...`,
+    });
+    // Mock download - in real app would trigger actual file download
+    console.log(`Downloading file: ${submission.fileName}`);
+  };
+
   if (user?.role !== UserRole.Supervisor) {
     return <AccessDenied allowedRoles={[UserRole.Supervisor]} />;
   }
@@ -237,6 +255,39 @@ const SubmissionsGrade: React.FC = () => {
         </div>
       </div>
 
+      {/* View Submission Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>View Submission: {selectedSubmission?.submission.fileName}</DialogTitle>
+            <DialogDescription>
+              Submitted by {selectedSubmission?.student.name} for {selectedSubmission?.activity.title}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 p-4 border rounded-lg bg-muted/20 h-96 overflow-auto">
+            <div className="text-center text-muted-foreground">
+              <FileText className="h-16 w-16 mx-auto mb-4" />
+              <p className="text-lg font-medium mb-2">File Preview</p>
+              <p className="text-sm mb-4">
+                In a real application, this would show the actual content of the submitted file.
+              </p>
+              <div className="text-left bg-background p-4 rounded border">
+                <h4 className="font-semibold mb-2">Sample Content Preview:</h4>
+                <p className="text-sm leading-relaxed">
+                  This is a mock preview of the submitted document. In a real implementation, 
+                  you would integrate with document viewers like PDF.js, Google Docs Viewer API, 
+                  or Microsoft Office Online.
+                </p>
+                <p className="text-sm mt-3 text-muted-foreground">
+                  File: {selectedSubmission?.submission.fileName}<br/>
+                  Submitted: {selectedSubmission?.submission.submittedAt && new Date(selectedSubmission.submission.submittedAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Submissions Grid */}
       <div className="space-y-4">
         {loading ? (
@@ -282,7 +333,21 @@ const SubmissionsGrade: React.FC = () => {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
+                      {activity && student && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleViewSubmission(submission, activity, student)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      )}
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleDownloadSubmission(submission)}
+                      >
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>

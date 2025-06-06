@@ -39,6 +39,23 @@ class NotificationStore {
     this.notifyListeners();
   }
 
+  // Send notification to student when their submission is graded
+  notifyStudentOfGrade(studentId: string, activityTitle: string, grade: number, feedback?: string) {
+    const gradeNotification = {
+      id: `grade-${Date.now()}-${studentId}`,
+      userId: studentId,
+      title: `Your submission has been graded`,
+      message: `Your submission for "${activityTitle}" has been graded. You received ${grade}/100.${feedback ? ` Feedback: ${feedback.substring(0, 100)}${feedback.length > 100 ? '...' : ''}` : ''}`,
+      type: 'grade' as const,
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+
+    this.notifications.push(gradeNotification);
+    this.saveToStorage();
+    this.notifyListeners();
+  }
+
   // Get notifications for a specific user
   getNotificationsForUser(userId: string): Notification[] {
     return this.notifications.filter(n => n.userId === userId);
