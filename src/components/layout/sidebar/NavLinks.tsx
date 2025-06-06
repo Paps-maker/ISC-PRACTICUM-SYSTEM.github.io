@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Calendar, FileText, Home, Upload, Users } from "lucide-react";
+import { Calendar, FileText, Home, Upload, Users, GraduationCap } from "lucide-react";
 import { UserRole } from "@/types";
 import SidebarLink from "./SidebarLink";
 
@@ -44,9 +44,9 @@ const NavLinks: React.FC<NavLinksProps> = ({ role, isMobile, closeMobileMenu }) 
       label: "Manage Activities"
     },
     {
-      to: "/submissions/review",
-      icon: FileText,
-      label: "Review Submissions"
+      to: "/students",
+      icon: Users,
+      label: "View Students"
     }
   ];
 
@@ -62,9 +62,19 @@ const NavLinks: React.FC<NavLinksProps> = ({ role, isMobile, closeMobileMenu }) 
       label: "Students"
     },
     {
+      to: "/activities/manage",
+      icon: Calendar,
+      label: "Manage Activities"
+    },
+    {
       to: "/submissions/grade",
       icon: FileText,
       label: "Grade Submissions"
+    },
+    {
+      to: "/letters/attachment",
+      icon: GraduationCap,
+      label: "Letters"
     }
   ];
 

@@ -43,10 +43,18 @@ const NavBar: React.FC = () => {
               <Link to={getDashboardUrl()} className="hover:text-white/90">
                 Dashboard
               </Link>
-              {(user?.role === UserRole.Instructor || user?.role === UserRole.Supervisor) && (
+              {user?.role === UserRole.Instructor && (
+                <Link to="/activities/manage" className="hover:text-white/90">
+                  Manage Activities
+                </Link>
+              )}
+              {user?.role === UserRole.Supervisor && (
                 <>
                   <Link to="/activities/manage" className="hover:text-white/90">
                     Manage Activities
+                  </Link>
+                  <Link to="/submissions/grade" className="hover:text-white/90">
+                    Grade Submissions
                   </Link>
                   <Link to="/letters/attachment" className="hover:text-white/90">
                     Letters

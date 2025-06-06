@@ -2,7 +2,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Submission, User, SubmissionStatus } from "@/types";
+import { Activity, Submission, User, SubmissionStatus, UserRole } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface RecentSubmissionsProps {
   submissions: Submission[];
@@ -15,6 +16,8 @@ const RecentSubmissions: React.FC<RecentSubmissionsProps> = ({
   activities, 
   students 
 }) => {
+  const { user } = useAuth();
+
   return (
     <>
       <h2 className="text-xl font-semibold mb-4">Recent Submissions</h2>
@@ -62,11 +65,22 @@ const RecentSubmissions: React.FC<RecentSubmissionsProps> = ({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Link to={`/submissions/${submission.id}`}>
-                        <Button size="sm" variant={submission.status === SubmissionStatus.Pending ? "default" : "outline"}>
-                          {submission.status === SubmissionStatus.Pending ? "Review" : "View"}
-                        </Button>
-                      </Link>
+                      {/* Only show Grade/Review buttons for Supervisors */}
+                      {user?.role === UserRole.Supervisor && (
+                        <Link to={`/submissions/${submission.id}/grade`}>
+                          <Button size="sm" variant={submission.status === SubmissionStatus.Pending ? "default" : "outline"}>
+                            {submission.status === SubmissionStatus.Pending ? "Grade" : "View"}
+                          </Button>
+                        </Link>
+                      )}
+                      {/* For instructors, just show View button */}
+                      {user?.role === UserRole.Instructor && (
+                        <Link to={`/submissions/${submission.id}`}>
+                          <Button size="sm" variant="outline">
+                            View
+                          </Button>
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 );
@@ -75,9 +89,15 @@ const RecentSubmissions: React.FC<RecentSubmissionsProps> = ({
           </table>
         </div>
         <div className="px-4 py-3 bg-gray-50 text-center">
-          <Link to="/submissions/review">
-            <Button variant="link">View All Submissions</Button>
-          </Link>
+          {user?.role === UserRole.Supervisor ? (
+            <Link to="/submissions/grade">
+              <Button variant="link">View All Submissions</Button>
+            </Link>
+          ) : (
+            <Link to="/submissions/review">
+              <Button variant="link">View All Submissions</Button>
+            </Link>
+          )}
         </div>
       </div>
     </>
