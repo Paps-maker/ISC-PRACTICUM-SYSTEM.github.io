@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -162,9 +161,32 @@ const ProgressReports: React.FC = () => {
   };
 
   const handleExportReport = () => {
-    // In a real app, this would generate and download a PDF or Excel file
-    console.log("Exporting progress report...");
-    alert("Progress report exported successfully!");
+    // Create CSV content
+    const csvContent = [
+      ['Student Name', 'Email', 'Completion Rate', 'Submissions Count', 'Total Activities', 'Average Grade'].join(','),
+      ...filteredStudents.map(student => {
+        const progress = getStudentProgress(student.id);
+        return [
+          student.name,
+          student.email,
+          `${progress.completionRate}%`,
+          progress.submissionsCount,
+          progress.totalActivities,
+          progress.averageGrade ? `${progress.averageGrade.toFixed(0)}%` : 'N/A'
+        ].join(',');
+      })
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `progress_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const getDashboardUrl = () => {
@@ -374,12 +396,12 @@ const ProgressReports: React.FC = () => {
                     </div>
                     
                     <div className="mt-3 flex gap-2">
-                      <Link to={`/students/${student.id}`}>
+                      <Link to="/students">
                         <Button size="sm" variant="outline">
                           View Details
                         </Button>
                       </Link>
-                      <Link to={`/students/${student.id}/submissions`}>
+                      <Link to="/submissions/grade">
                         <Button size="sm" variant="outline">
                           View Submissions
                         </Button>
