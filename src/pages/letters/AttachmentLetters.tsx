@@ -2,22 +2,31 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, Download, FileText, CheckCircle, User } from "lucide-react";
+import { Printer, Download, FileText, CheckCircle, User, Upload, File } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { useAuth } from "@/contexts/AuthContext";
 import { User as UserType, UserRole, Activity, Submission, SubmissionStatus } from "@/types";
 import { AccessDenied } from "@/components/ui/access-denied";
+import { FileUpload } from "@/components/FileUpload";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 
 interface EligibleStudent {
   student: UserType;
   completedActivities: number;
   totalActivities: number;
+  attachmentLetter?: {
+    fileName: string;
+    fileUrl: string;
+    uploadedAt: string;
+  };
 }
 
 const AttachmentLetters: React.FC = () => {
   const { user } = useAuth();
   const [eligibleStudents, setEligibleStudents] = useState<EligibleStudent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState<string | null>(null);
 
   const getDashboardUrl = () => {
     if (!user) return "/";
@@ -204,7 +213,13 @@ const AttachmentLetters: React.FC = () => {
       return {
         student,
         completedActivities,
-        totalActivities: mockActivities.length
+        totalActivities: mockActivities.length,
+        // Mock some uploaded letters for demonstration
+        attachmentLetter: student.id === "1" ? {
+          fileName: "attachment_letter_john.pdf",
+          fileUrl: "#",
+          uploadedAt: "2025-06-06T10:00:00Z"
+        } : undefined
       };
     }).filter(item => item.completedActivities === item.totalActivities);
 
@@ -232,6 +247,41 @@ const AttachmentLetters: React.FC = () => {
     const element = document.createElement('a');
     element.setAttribute('href', `data:text/plain;charset=utf-8,Attachment Letter for ${student.name}`);
     element.setAttribute('download', `attachment-letter-${student.name.replace(' ', '-').toLowerCase()}.txt`);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const handleFileUpload = (file: File, studentId: string) => {
+    // Mock file upload - in real app, this would upload to server
+    const newAttachmentLetter = {
+      fileName: file.name,
+      fileUrl: URL.createObjectURL(file),
+      uploadedAt: new Date().toISOString()
+    };
+
+    setEligibleStudents(prev => 
+      prev.map(item => 
+        item.student.id === studentId 
+          ? { ...item, attachmentLetter: newAttachmentLetter }
+          : item
+      )
+    );
+
+    toast({
+      title: "Letter Uploaded",
+      description: `Attachment letter uploaded successfully for ${eligibleStudents.find(s => s.student.id === studentId)?.student.name}`,
+    });
+
+    setUploadDialogOpen(null);
+  };
+
+  const downloadAttachmentLetter = (student: UserType, attachmentLetter: { fileName: string; fileUrl: string }) => {
+    // Mock download
+    const element = document.createElement('a');
+    element.setAttribute('href', attachmentLetter.fileUrl);
+    element.setAttribute('download', attachmentLetter.fileName);
     element.style.display = 'none';
     document.body.appendChild(element);
     element.click();
@@ -287,19 +337,85 @@ const AttachmentLetters: React.FC = () => {
                       <div>
                         <h3 className="font-semibold">{item.student.name}</h3>
                         <p className="text-sm text-muted-foreground">{item.student.email}</p>
+                        {item.attachmentLetter && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <File className="h-3 w-3 text-green-600" />
+                            <span className="text-xs text-green-600">Letter uploaded</span>
+                          </div>
+                        )}
                       </div>
                       <Badge variant="outline" className="flex items-center gap-1">
                         <CheckCircle className="h-3 w-3" />
                         All Activities Completed
                       </Badge>
                     </div>
-                    <Button
-                      onClick={() => generateLetterForStudent(item.student)}
-                      size="sm"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Generate Letter
-                    </Button>
+                    <div className="flex gap-2">
+                      {item.attachmentLetter ? (
+                        <>
+                          <Button
+                            onClick={() => downloadAttachmentLetter(item.student, item.attachmentLetter!)}
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Letter
+                          </Button>
+                          <Dialog open={uploadDialogOpen === item.student.id} onOpenChange={(open) => setUploadDialogOpen(open ? item.student.id : null)}>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Replace Letter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Upload Attachment Letter</DialogTitle>
+                                <DialogDescription>
+                                  Upload the attachment letter for {item.student.name}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <FileUpload
+                                onFileSelect={(file) => handleFileUpload(file, item.student.id)}
+                                acceptedFileTypes=".pdf,.docx,.doc"
+                                maxSize={5}
+                              />
+                            </DialogContent>
+                          </Dialog>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            onClick={() => generateLetterForStudent(item.student)}
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Generate Template
+                          </Button>
+                          <Dialog open={uploadDialogOpen === item.student.id} onOpenChange={(open) => setUploadDialogOpen(open ? item.student.id : null)}>
+                            <DialogTrigger asChild>
+                              <Button size="sm">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Upload Letter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Upload Attachment Letter</DialogTitle>
+                                <DialogDescription>
+                                  Upload the attachment letter for {item.student.name}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <FileUpload
+                                onFileSelect={(file) => handleFileUpload(file, item.student.id)}
+                                acceptedFileTypes=".pdf,.docx,.doc"
+                                maxSize={5}
+                              />
+                            </DialogContent>
+                          </Dialog>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -340,6 +456,16 @@ const AttachmentLetters: React.FC = () => {
                   <li>Student must have submitted all required activities</li>
                   <li>All submissions must be reviewed and approved</li>
                   <li>Student must be in good academic standing</li>
+                </ul>
+              </div>
+
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">Upload Guidelines:</h3>
+                <ul className="list-disc list-inside text-sm space-y-1">
+                  <li>Supported formats: PDF, Word documents (.docx, .doc)</li>
+                  <li>Maximum file size: 5MB</li>
+                  <li>Ensure the letter is properly signed and formatted</li>
+                  <li>Letters can be replaced if needed</li>
                 </ul>
               </div>
             </div>
