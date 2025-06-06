@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -21,7 +22,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
   // Demo account quick login
@@ -74,8 +75,17 @@ const Login: React.FC = () => {
         description: "You have been logged in successfully",
       });
       
-      // The routing is handled by AuthRoute in App.tsx
-      navigate("/dashboard");
+      // Wait for user context to update, then redirect based on role
+      // Since login sets the user, we need to get the current user's role
+      // The user will be available after the login promise resolves
+      setTimeout(() => {
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+        if (currentUser.role) {
+          navigate(`/dashboard/${currentUser.role}`);
+        } else {
+          navigate("/dashboard/student"); // fallback
+        }
+      }, 100);
     } catch (error) {
       toast({
         variant: "destructive",
