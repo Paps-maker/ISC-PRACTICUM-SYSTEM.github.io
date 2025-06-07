@@ -10,6 +10,7 @@ import { AccessDenied } from "@/components/ui/access-denied";
 import { FileUpload } from "@/components/FileUpload";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { notificationStore } from "@/stores/notificationStore";
 
 interface EligibleStudent {
   student: UserType;
@@ -245,12 +246,17 @@ const AttachmentLetters: React.FC = () => {
   };
 
   const handleFileUpload = (file: File, studentId: string) => {
+    const student = eligibleStudents.find(s => s.student.id === studentId);
+    if (!student) return;
+
+    // Create the new attachment letter object
     const newAttachmentLetter = {
       fileName: file.name,
       fileUrl: URL.createObjectURL(file),
       uploadedAt: new Date().toISOString()
     };
 
+    // Update the state with the new attachment letter
     setEligibleStudents(prev => 
       prev.map(item => 
         item.student.id === studentId 
@@ -259,11 +265,20 @@ const AttachmentLetters: React.FC = () => {
       )
     );
 
+    // Send notification to the student
+    notificationStore.notifyStudentOfAttachmentLetter(
+      studentId,
+      student.student.name,
+      file.name
+    );
+
+    // Show success toast
     toast({
-      title: "Letter Uploaded",
-      description: `Attachment letter uploaded successfully for ${eligibleStudents.find(s => s.student.id === studentId)?.student.name}`,
+      title: "Letter Uploaded Successfully",
+      description: `Attachment letter uploaded for ${student.student.name}. The student has been notified.`,
     });
 
+    // Close the dialog
     setUploadDialogOpen(null);
   };
 

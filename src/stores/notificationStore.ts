@@ -56,6 +56,23 @@ class NotificationStore {
     this.notifyListeners();
   }
 
+  // Send notification to student when their attachment letter is uploaded
+  notifyStudentOfAttachmentLetter(studentId: string, studentName: string, fileName: string) {
+    const letterNotification = {
+      id: `letter-${Date.now()}-${studentId}`,
+      userId: studentId,
+      title: `Your attachment letter is ready`,
+      message: `Your attachment letter (${fileName}) has been uploaded and is now available for download. You can access it from your dashboard.`,
+      type: 'general' as const,
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+
+    this.notifications.push(letterNotification);
+    this.saveToStorage();
+    this.notifyListeners();
+  }
+
   // Get notifications for a specific user
   getNotificationsForUser(userId: string): Notification[] {
     return this.notifications.filter(n => n.userId === userId);
