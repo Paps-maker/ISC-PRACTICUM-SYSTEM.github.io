@@ -1,10 +1,11 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, UserRole, AuthContextType } from "@/types";
 import { studentStore } from "@/stores/studentStore";
 
-// Mock user data (would use an actual API in production)
-const mockUsers = [
+// Initial mock user data - these will be combined with registered users
+const initialMockUsers = [
   {
     id: "1",
     name: "John Student",
@@ -34,8 +35,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
   
   useEffect(() => {
+    // Load registered users from localStorage and combine with initial mock users
+    const savedRegisteredUsers = localStorage.getItem("registeredUsers");
+    const registeredUsers = savedRegisteredUsers ? JSON.parse(savedRegisteredUsers) : [];
+    
+    // Combine initial mock users with registered users, avoiding duplicates
+    const combinedUsers = [...initialMockUsers];
+    registeredUsers.forEach((regUser: any) => {
+      const exists = combinedUsers.some(u => u.email === regUser.email || u.schoolId === regUser.schoolId);
+      if (!exists) {
+        combinedUsers.push(regUser);
+      }
+    });
+    
+    setAllUsers(combinedUsers);
+    
     // Check for saved user in localStorage (in a real app, would validate the token)
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -56,10 +73,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         let foundUser;
         if (isEmail) {
           // Login with email for instructors and supervisors
-          foundUser = mockUsers.find(u => u.email === emailOrSchoolId && u.password === password);
+          foundUser = allUsers.find(u => u.email === emailOrSchoolId && u.password === password);
         } else {
           // Login with school ID for students
-          foundUser = mockUsers.find(u => u.schoolId === emailOrSchoolId && u.password === password && u.role === UserRole.Student);
+          foundUser = allUsers.find(u => u.schoolId === emailOrSchoolId && u.password === password && u.role === UserRole.Student);
         }
         
         if (foundUser) {
@@ -84,15 +101,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         // Check if user already exists
-        if (mockUsers.some(u => u.email === email)) {
+        if (allUsers.some(u => u.email === email)) {
           setLoading(false);
           reject(new Error("User with this email already exists"));
           return;
         }
         
+        if (role === UserRole.Student && schoolId && allUsers.some(u => u.schoolId === schoolId)) {
+          setLoading(false);
+          reject(new Error("User with this school ID already exists"));
+          return;
+        }
+        
         // Create new user
         const newUser = {
-          id: `${mockUsers.length + 1}`,
+          id: `${allUsers.length + 1}`,
           name,
           email,
           password,
@@ -100,7 +123,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           ...(schoolId && { schoolId })
         };
         
-        mockUsers.push(newUser);
+        // Add to allUsers state
+        const updatedUsers = [...allUsers, newUser];
+        setAllUsers(updatedUsers);
+        
+        // Save registered users to localStorage (excluding initial mock users)
+        const savedRegisteredUsers = localStorage.getItem("registeredUsers");
+        const registeredUsers = savedRegisteredUsers ? JSON.parse(savedRegisteredUsers) : [];
+        registeredUsers.push(newUser);
+        localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers));
         
         // Login the user after registration
         const { password: _, ...userWithoutPassword } = newUser;
