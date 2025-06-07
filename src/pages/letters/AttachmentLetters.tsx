@@ -44,7 +44,6 @@ const AttachmentLetters: React.FC = () => {
   };
 
   useEffect(() => {
-    // Mock data for students, activities, and submissions
     const mockStudents: UserType[] = [
       {
         id: "1",
@@ -116,7 +115,6 @@ const AttachmentLetters: React.FC = () => {
     ];
 
     const mockSubmissions: Submission[] = [
-      // John Student - completed all activities
       {
         id: "1",
         activityId: "1",
@@ -153,7 +151,6 @@ const AttachmentLetters: React.FC = () => {
         submittedAt: "2025-06-29T10:15:00Z",
         status: SubmissionStatus.Reviewed
       },
-      // Emma Johnson - completed 3 out of 4 activities
       {
         id: "5",
         activityId: "1",
@@ -181,7 +178,6 @@ const AttachmentLetters: React.FC = () => {
         submittedAt: "2025-06-23T09:45:00Z",
         status: SubmissionStatus.Reviewed
       },
-      // Michael Smith - completed 2 out of 4 activities
       {
         id: "8",
         activityId: "1",
@@ -200,10 +196,8 @@ const AttachmentLetters: React.FC = () => {
         submittedAt: "2025-06-15T11:30:00Z",
         status: SubmissionStatus.Reviewed
       }
-      // Sophia Williams - no submissions yet
     ];
 
-    // Calculate eligible students (those who completed all activities)
     const eligible: EligibleStudent[] = mockStudents.map(student => {
       const studentSubmissions = mockSubmissions.filter(s => s.studentId === student.id);
       const completedActivities = studentSubmissions.filter(s => 
@@ -214,7 +208,6 @@ const AttachmentLetters: React.FC = () => {
         student,
         completedActivities,
         totalActivities: mockActivities.length,
-        // Mock some uploaded letters for demonstration
         attachmentLetter: student.id === "1" ? {
           fileName: "attachment_letter_john.pdf",
           fileUrl: "#",
@@ -232,7 +225,6 @@ const AttachmentLetters: React.FC = () => {
   };
 
   const handleDownload = () => {
-    // Mock download functionality
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,Sample Attachment Letter Content');
     element.setAttribute('download', 'attachment-letter.txt');
@@ -243,7 +235,6 @@ const AttachmentLetters: React.FC = () => {
   };
 
   const generateLetterForStudent = (student: UserType) => {
-    // Mock letter generation
     const element = document.createElement('a');
     element.setAttribute('href', `data:text/plain;charset=utf-8,Attachment Letter for ${student.name}`);
     element.setAttribute('download', `attachment-letter-${student.name.replace(' ', '-').toLowerCase()}.txt`);
@@ -254,7 +245,6 @@ const AttachmentLetters: React.FC = () => {
   };
 
   const handleFileUpload = (file: File, studentId: string) => {
-    // Mock file upload - in real app, this would upload to server
     const newAttachmentLetter = {
       fileName: file.name,
       fileUrl: URL.createObjectURL(file),
@@ -278,7 +268,6 @@ const AttachmentLetters: React.FC = () => {
   };
 
   const downloadAttachmentLetter = (student: UserType, attachmentLetter: { fileName: string; fileUrl: string }) => {
-    // Mock download
     const element = document.createElement('a');
     element.setAttribute('href', attachmentLetter.fileUrl);
     element.setAttribute('download', attachmentLetter.fileName);
@@ -288,7 +277,6 @@ const AttachmentLetters: React.FC = () => {
     document.body.removeChild(element);
   };
 
-  // Only instructors and supervisors should access this page
   if (user?.role !== UserRole.Instructor && user?.role !== UserRole.Supervisor) {
     return <AccessDenied allowedRoles={[UserRole.Instructor, UserRole.Supervisor]} />;
   }
@@ -369,9 +357,9 @@ const AttachmentLetters: React.FC = () => {
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Upload Attachment Letter</DialogTitle>
+                                <DialogTitle>Replace Attachment Letter</DialogTitle>
                                 <DialogDescription>
-                                  Upload the attachment letter for {item.student.name}
+                                  Upload a new attachment letter for {item.student.name}
                                 </DialogDescription>
                               </DialogHeader>
                               <FileUpload

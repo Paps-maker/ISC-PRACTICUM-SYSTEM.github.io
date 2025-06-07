@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,12 +7,17 @@ import { BackButton } from "@/components/ui/back-button";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Activity, Submission, SubmissionStatus } from "@/types";
-import { Calendar, CheckCircle, Clock, FileText, Upload, TrendingUp } from "lucide-react";
+import { Calendar, CheckCircle, Clock, FileText, Upload, TrendingUp, Download, File } from "lucide-react";
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [attachmentLetter, setAttachmentLetter] = useState<{
+    fileName: string;
+    fileUrl: string;
+    uploadedAt: string;
+  } | null>(null);
 
   // Mock data fetch
   useEffect(() => {
@@ -49,7 +55,6 @@ const StudentDashboard: React.FC = () => {
       }
     ];
 
-    // Simulate fetching submissions
     const mockSubmissions: Submission[] = [
       {
         id: "1",
@@ -64,36 +69,59 @@ const StudentDashboard: React.FC = () => {
 
     setActivities(mockActivities);
     setSubmissions(mockSubmissions);
+
+    // Check if student is eligible for attachment letter and has one uploaded
+    const completedActivities = mockSubmissions.filter(s => 
+      s.status === SubmissionStatus.Reviewed || s.status === SubmissionStatus.Graded
+    ).length;
+    
+    const isEligible = completedActivities === mockActivities.length;
+    
+    // Mock attachment letter for eligible student (John Student)
+    if (isEligible && user?.id === "1") {
+      setAttachmentLetter({
+        fileName: "attachment_letter_john.pdf",
+        fileUrl: "#",
+        uploadedAt: "2025-06-06T10:00:00Z"
+      });
+    }
   }, [user]);
 
   // Calculate upcoming deadlines
   const upcomingActivities = activities
     .filter(activity => {
-      // Check if the student has already submitted for this activity
       const hasSubmission = submissions.some(
         sub => sub.activityId === activity.id
       );
       
-      // Only include activities without submissions and with future deadlines
       return !hasSubmission && new Date(activity.deadline || activity.endDate) > new Date();
     })
     .sort((a, b) => new Date(a.deadline || a.endDate).getTime() - new Date(b.deadline || b.endDate).getTime())
     .slice(0, 3);
 
-  // Calculate submission status
   const submittedActivities = activities.filter(activity => {
     return submissions.some(sub => sub.activityId === activity.id);
   });
 
-  // Always show progress starting from 0 if no activities or submissions
   const submissionRate = activities.length > 0
     ? Math.round((submittedActivities.length / activities.length) * 100)
     : 0;
 
-  // Get recent submissions
   const recentSubmissions = [...submissions]
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
     .slice(0, 3);
+
+  const downloadAttachmentLetter = () => {
+    if (attachmentLetter) {
+      const element = document.createElement('a');
+      element.setAttribute('href', attachmentLetter.fileUrl);
+      element.setAttribute('download', attachmentLetter.fileName);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 lg:p-6">
@@ -201,6 +229,59 @@ const StudentDashboard: React.FC = () => {
           }
         />
       </div>
+
+      {/* Attachment Letter Section - Only show if eligible and letter exists */}
+      {attachmentLetter && submissionRate === 100 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Attachment Letter</h2>
+          <DashboardCard
+            title="Your Attachment Letter"
+            content={
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <File className="h-8 w-8 text-green-600" />
+                  <div>
+                    <div className="font-medium">{attachmentLetter.fileName}</div>
+                    <div className="text-sm text-muted-foreground">
+                      Uploaded on {new Date(attachmentLetter.uploadedAt).toLocaleDateString()}
+                    </div>
+                    <Badge variant="outline" className="mt-1 flex items-center gap-1 w-fit">
+                      <CheckCircle className="h-3 w-3" />
+                      Ready for Practicum
+                    </Badge>
+                  </div>
+                </div>
+                <Button onClick={downloadAttachmentLetter} className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Download
+                </Button>
+              </div>
+            }
+          />
+        </div>
+      )}
+
+      {/* Eligibility Notice - Show if not yet eligible */}
+      {submissionRate < 100 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Attachment Letter</h2>
+          <DashboardCard
+            title="Attachment Letter Eligibility"
+            content={
+              <div className="text-center py-4">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="font-medium mb-2">Complete All Activities</h3>
+                <p className="text-muted-foreground text-sm">
+                  You need to complete all required activities to be eligible for your attachment letter.
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Progress: {submittedActivities.length} of {activities.length} activities completed
+                </p>
+              </div>
+            }
+          />
+        </div>
+      )}
 
       {/* Quick Actions */}
       <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
