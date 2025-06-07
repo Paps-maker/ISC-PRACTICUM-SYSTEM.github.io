@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, UserRole, AuthContextType } from "@/types";
@@ -45,13 +44,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (emailOrSchoolId: string, password: string) => {
     setLoading(true);
     
     // Simulate API call
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
-        const foundUser = mockUsers.find(u => u.email === email && u.password === password);
+        // Check if it's an email (contains @) or school ID
+        const isEmail = emailOrSchoolId.includes('@');
+        
+        let foundUser;
+        if (isEmail) {
+          // Login with email for instructors and supervisors
+          foundUser = mockUsers.find(u => u.email === emailOrSchoolId && u.password === password);
+        } else {
+          // Login with school ID for students
+          foundUser = mockUsers.find(u => u.schoolId === emailOrSchoolId && u.password === password && u.role === UserRole.Student);
+        }
         
         if (foundUser) {
           // Remove password from the user object
@@ -62,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           resolve();
         } else {
           setLoading(false);
-          reject(new Error("Invalid email or password"));
+          reject(new Error("Invalid credentials"));
         }
       }, 1000);
     });

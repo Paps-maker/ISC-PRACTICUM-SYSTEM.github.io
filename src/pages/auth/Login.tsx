@@ -19,31 +19,32 @@ import { UserRole } from "@/types";
 import { BackButton } from "@/components/ui/back-button";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [loginType, setLoginType] = useState<"student" | "staff">("staff");
+  const [emailOrSchoolId, setEmailOrSchoolId] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   // Demo account quick login
   const handleDemoLogin = async (role: UserRole) => {
     setIsSubmitting(true);
-    let demoEmail;
+    let demoCredentials;
     
     switch (role) {
       case UserRole.Student:
-        demoEmail = "student@example.com";
+        demoCredentials = { emailOrSchoolId: "STU2025001", password: "password123" };
         break;
       case UserRole.Instructor:
-        demoEmail = "instructor@example.com";
+        demoCredentials = { emailOrSchoolId: "instructor@example.com", password: "password123" };
         break;
       case UserRole.Supervisor:
-        demoEmail = "supervisor@example.com";
+        demoCredentials = { emailOrSchoolId: "supervisor@example.com", password: "password123" };
         break;
     }
     
     try {
-      await login(demoEmail, "password123");
+      await login(demoCredentials.emailOrSchoolId, demoCredentials.password);
       
       toast({
         title: "Login successful",
@@ -68,7 +69,7 @@ const Login: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      await login(email, password);
+      await login(emailOrSchoolId, password);
       
       toast({
         title: "Login successful",
@@ -76,8 +77,6 @@ const Login: React.FC = () => {
       });
       
       // Wait for user context to update, then redirect based on role
-      // Since login sets the user, we need to get the current user's role
-      // The user will be available after the login promise resolves
       setTimeout(() => {
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
         if (currentUser.role) {
@@ -90,7 +89,7 @@ const Login: React.FC = () => {
       toast({
         variant: "destructive",
         title: "Login failed",
-        description: "Invalid email or password. Please try again.",
+        description: "Invalid credentials. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -109,76 +108,105 @@ const Login: React.FC = () => {
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Logging in..." : "Login"}
+          
+          <CardContent className="space-y-4">
+            {/* Login Type Toggle */}
+            <div className="flex justify-center space-x-2 mb-4">
+              <Button
+                type="button"
+                variant={loginType === "student" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLoginType("student")}
+              >
+                Student
               </Button>
-              <div className="text-sm text-center text-foreground">
-                Don't have an account?{" "}
-                <Link to="/register" className="text-primary hover:underline">
-                  Register
-                </Link>
-              </div>
-              
-              <div className="w-full border-t pt-4 text-center text-sm text-foreground">
-                <div className="mb-2">Try a demo account:</div>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDemoLogin(UserRole.Student)}
-                    disabled={isSubmitting}
-                  >
-                    Student Demo
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDemoLogin(UserRole.Instructor)}
-                    disabled={isSubmitting}
-                  >
-                    Instructor Demo
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDemoLogin(UserRole.Supervisor)}
-                    disabled={isSubmitting}
-                  >
-                    Supervisor Demo
-                  </Button>
+              <Button
+                type="button"
+                variant={loginType === "staff" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setLoginType("staff")}
+              >
+                Staff
+              </Button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="credential" className="text-foreground">
+                    {loginType === "student" ? "School ID" : "Email"}
+                  </Label>
+                  <Input
+                    id="credential"
+                    type={loginType === "student" ? "text" : "email"}
+                    placeholder={loginType === "student" ? "Enter your school ID" : "name@example.com"}
+                    value={emailOrSchoolId}
+                    onChange={(e) => setEmailOrSchoolId(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-foreground">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
-            </CardFooter>
-          </form>
+              
+              <CardFooter className="flex flex-col space-y-4 px-0 pt-4">
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Logging in..." : "Login"}
+                </Button>
+              </CardFooter>
+            </form>
+          </CardContent>
+          
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="text-sm text-center text-foreground">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-primary hover:underline">
+                Register
+              </Link>
+            </div>
+            
+            <div className="w-full border-t pt-4 text-center text-sm text-foreground">
+              <div className="mb-2">Try a demo account:</div>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDemoLogin(UserRole.Student)}
+                  disabled={isSubmitting}
+                >
+                  Student Demo
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDemoLogin(UserRole.Instructor)}
+                  disabled={isSubmitting}
+                >
+                  Instructor Demo
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDemoLogin(UserRole.Supervisor)}
+                  disabled={isSubmitting}
+                >
+                  Supervisor Demo
+                </Button>
+              </div>
+            </div>
+          </CardFooter>
         </Card>
       </div>
     </div>
