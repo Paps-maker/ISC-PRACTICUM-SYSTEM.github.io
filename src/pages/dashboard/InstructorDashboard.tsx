@@ -14,99 +14,10 @@ import StudentProgress from "@/components/dashboard/StudentProgress";
 import { Activity, Submission, User, UserRole, SubmissionStatus } from "@/types";
 
 const InstructorDashboard: React.FC = () => {
-  // Mock data for dashboard
-  const mockActivities: Activity[] = [
-    {
-      id: "1",
-      title: "Week 1: Company Introduction",
-      description: "Write a brief introduction about the company you are interning with.",
-      startDate: "2025-06-01T10:00:00Z",
-      endDate: "2025-06-07T23:59:59Z",
-      deadline: "2025-06-07T23:59:59Z",
-      createdAt: "2025-05-01T10:00:00Z",
-      createdBy: "2"
-    },
-    {
-      id: "2",
-      title: "Week 2: Department Functions",
-      description: "Document the functions of different departments in your organization.",
-      startDate: "2025-06-08T10:00:00Z",
-      endDate: "2025-06-14T23:59:59Z",
-      deadline: "2025-06-14T23:59:59Z",
-      createdAt: "2025-05-01T10:30:00Z",
-      createdBy: "2"
-    },
-    {
-      id: "3",
-      title: "Week 3: Tools and Technologies",
-      description: "List and describe the tools and technologies used in your work.",
-      startDate: "2025-06-15T10:00:00Z",
-      endDate: "2025-06-21T23:59:59Z",
-      deadline: "2025-06-21T23:59:59Z",
-      createdAt: "2025-05-02T09:15:00Z",
-      createdBy: "2"
-    }
-  ];
-
-  const mockStudents: User[] = [
-    { 
-      id: "1", 
-      name: "John Student", 
-      email: "student@example.com", 
-      role: UserRole.Student,
-      registrationDate: "2025-01-15"
-    },
-    { 
-      id: "4", 
-      name: "Alice Cooper", 
-      email: "alice@example.com", 
-      role: UserRole.Student,
-      registrationDate: "2025-02-10"
-    },
-    { 
-      id: "5", 
-      name: "Bob Johnson", 
-      email: "bob@example.com", 
-      role: UserRole.Student,
-      registrationDate: "2025-02-15"
-    },
-  ];
-
-  const mockSubmissions: Submission[] = [
-    {
-      id: "1",
-      activityId: "1",
-      studentId: "1",
-      fileName: "company_intro.pdf",
-      fileUrl: "https://example.com/file1.pdf",
-      submittedAt: "2025-06-05T15:30:00Z",
-      feedback: null,
-      grade: null,
-      status: SubmissionStatus.Pending
-    },
-    {
-      id: "2",
-      activityId: "1",
-      studentId: "4",
-      fileName: "company_intro_alice.pdf",
-      fileUrl: "https://example.com/file2.pdf",
-      submittedAt: "2025-06-06T10:45:00Z",
-      feedback: "Great work!",
-      grade: 85,
-      status: SubmissionStatus.Reviewed
-    },
-    {
-      id: "3",
-      activityId: "2",
-      studentId: "5",
-      fileName: "department_functions.pdf",
-      fileUrl: "https://example.com/file3.pdf",
-      submittedAt: "2025-06-12T09:20:00Z",
-      feedback: null,
-      grade: null,
-      status: SubmissionStatus.Pending
-    }
-  ];
+  // Use empty arrays - no mock data
+  const mockActivities: Activity[] = [];
+  const mockStudents: User[] = [];
+  const mockSubmissions: Submission[] = [];
 
   // Feature cards for quick access
   const cards: DashboardCardProps[] = [
@@ -204,7 +115,7 @@ const InstructorDashboard: React.FC = () => {
 
         {/* Recent Submissions */}
         <RecentSubmissions 
-          submissions={mockSubmissions.slice(0, 5)}
+          submissions={mockSubmissions}
           activities={mockActivities}
           students={mockStudents}
         />
