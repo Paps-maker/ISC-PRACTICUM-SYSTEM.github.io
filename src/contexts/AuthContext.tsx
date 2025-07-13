@@ -4,7 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { User, UserRole, AuthContextType } from "@/types";
 import { studentStore } from "@/stores/studentStore";
 
-// Initial mock user data - these will be combined with registered users
+// Default admin account - this will always exist
+const ADMIN_ACCOUNT = {
+  id: "admin-001",
+  name: "System Administrator",
+  email: "admin@system.com",
+  password: "admin123",
+  role: UserRole.Admin
+};
+
+// Initial mock users for demo purposes
 const initialMockUsers = [
   {
     id: "1",
@@ -37,24 +46,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   
-  useEffect(() => {
-    // Load registered users from localStorage and combine with initial mock users
-    const savedRegisteredUsers = localStorage.getItem("registeredUsers");
-    const registeredUsers = savedRegisteredUsers ? JSON.parse(savedRegisteredUsers) : [];
-    
-    // Combine initial mock users with registered users, avoiding duplicates
-    const combinedUsers = [...initialMockUsers];
-    registeredUsers.forEach((regUser: any) => {
-      const exists = combinedUsers.some(u => u.email === regUser.email || u.schoolId === regUser.schoolId);
-      if (!exists) {
-        combinedUsers.push(regUser);
+  // Initialize localStorage with default users if not present
+  const initializeUserData = () => {
+    const existingUsers = localStorage.getItem("allSystemUsers");
+    if (!existingUsers) {
+      const defaultUsers = [ADMIN_ACCOUNT, ...initialMockUsers];
+      localStorage.setItem("allSystemUsers", JSON.stringify(defaultUsers));
+      return defaultUsers;
+    } else {
+      const users = JSON.parse(existingUsers);
+      // Ensure admin account always exists
+      const hasAdmin = users.some((u: any) => u.role === UserRole.Admin);
+      if (!hasAdmin) {
+        users.unshift(ADMIN_ACCOUNT);
+        localStorage.setItem("allSystemUsers", JSON.stringify(users));
       }
-    });
+      return users;
+    }
+  };
+
+  useEffect(() => {
+    // Initialize user data in localStorage
+    const users = initializeUserData();
+    setAllUsers(users);
     
-    setAllUsers(combinedUsers);
-    
-    // Check for saved user in localStorage (in a real app, would validate the token)
-    const savedUser = localStorage.getItem("user");
+    // Check for saved user in localStorage
+    const savedUser = localStorage.getItem("currentUser");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -64,26 +81,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (emailOrSchoolId: string, password: string) => {
     setLoading(true);
     
-    // Simulate API call
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
+        // Get current users from localStorage
+        const currentUsers = JSON.parse(localStorage.getItem("allSystemUsers") || "[]");
+        
         // Check if it's an email (contains @) or school ID
         const isEmail = emailOrSchoolId.includes('@');
         
         let foundUser;
         if (isEmail) {
-          // Login with email for instructors and supervisors
-          foundUser = allUsers.find(u => u.email === emailOrSchoolId && u.password === password);
+          // Login with email for all roles except students with school ID
+          foundUser = currentUsers.find((u: any) => u.email === emailOrSchoolId && u.password === password);
         } else {
           // Login with school ID for students
-          foundUser = allUsers.find(u => u.schoolId === emailOrSchoolId && u.password === password && u.role === UserRole.Student);
+          foundUser = currentUsers.find((u: any) => u.schoolId === emailOrSchoolId && u.password === password && u.role === UserRole.Student);
         }
         
         if (foundUser) {
           // Remove password from the user object
           const { password, ...userWithoutPassword } = foundUser;
           setUser(userWithoutPassword);
-          localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+          localStorage.setItem("currentUser", JSON.stringify(userWithoutPassword));
           setLoading(false);
           resolve();
         } else {
@@ -97,17 +116,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (name: string, email: string, password: string, role: UserRole, schoolId?: string) => {
     setLoading(true);
     
-    // Simulate API call
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
+        // Get current users from localStorage
+        const currentUsers = JSON.parse(localStorage.getItem("allSystemUsers") || "[]");
+        
         // Check if user already exists
-        if (allUsers.some(u => u.email === email)) {
+        if (currentUsers.some((u: any) => u.email === email)) {
           setLoading(false);
           reject(new Error("User with this email already exists"));
           return;
         }
         
-        if (role === UserRole.Student && schoolId && allUsers.some(u => u.schoolId === schoolId)) {
+        if (role === UserRole.Student && schoolId && currentUsers.some((u: any) => u.schoolId === schoolId)) {
           setLoading(false);
           reject(new Error("User with this school ID already exists"));
           return;
@@ -115,28 +136,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Create new user
         const newUser = {
-          id: `${allUsers.length + 1}`,
+          id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           name,
           email,
           password,
           role,
-          ...(schoolId && { schoolId })
+          ...(schoolId && { schoolId }),
+          registrationDate: new Date().toISOString().split('T')[0]
         };
         
-        // Add to allUsers state
-        const updatedUsers = [...allUsers, newUser];
+        // Add to users array and save to localStorage
+        const updatedUsers = [...currentUsers, newUser];
+        localStorage.setItem("allSystemUsers", JSON.stringify(updatedUsers));
         setAllUsers(updatedUsers);
-        
-        // Save registered users to localStorage (excluding initial mock users)
-        const savedRegisteredUsers = localStorage.getItem("registeredUsers");
-        const registeredUsers = savedRegisteredUsers ? JSON.parse(savedRegisteredUsers) : [];
-        registeredUsers.push(newUser);
-        localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers));
         
         // Login the user after registration
         const { password: _, ...userWithoutPassword } = newUser;
         setUser(userWithoutPassword);
-        localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+        localStorage.setItem("currentUser", JSON.stringify(userWithoutPassword));
         
         // If the user is a student, add them to the student store
         if (role === UserRole.Student) {
@@ -151,8 +168,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
-    // Navigation will be handled by the component that calls logout
+    localStorage.removeItem("currentUser");
+  };
+
+  // Admin functions
+  const getAllUsers = () => {
+    const users = JSON.parse(localStorage.getItem("allSystemUsers") || "[]");
+    return users.map(({ password, ...user }: any) => user); // Remove passwords from returned data
+  };
+
+  const deleteUser = (userId: string) => {
+    if (userId === ADMIN_ACCOUNT.id) {
+      throw new Error("Cannot delete admin account");
+    }
+    
+    const currentUsers = JSON.parse(localStorage.getItem("allSystemUsers") || "[]");
+    const updatedUsers = currentUsers.filter((u: any) => u.id !== userId);
+    localStorage.setItem("allSystemUsers", JSON.stringify(updatedUsers));
+    setAllUsers(updatedUsers);
+  };
+
+  const updateUser = (userId: string, updates: Partial<User>) => {
+    const currentUsers = JSON.parse(localStorage.getItem("allSystemUsers") || "[]");
+    const updatedUsers = currentUsers.map((u: any) => 
+      u.id === userId ? { ...u, ...updates } : u
+    );
+    localStorage.setItem("allSystemUsers", JSON.stringify(updatedUsers));
+    setAllUsers(updatedUsers);
+  };
+
+  const clearAllUserData = () => {
+    // Reset to default users (admin + initial mock users)
+    const defaultUsers = [ADMIN_ACCOUNT, ...initialMockUsers];
+    localStorage.setItem("allSystemUsers", JSON.stringify(defaultUsers));
+    setAllUsers(defaultUsers);
+    
+    // Clear other related data
+    localStorage.removeItem("registeredUsers");
+    localStorage.removeItem("registeredStudents");
   };
 
   const value = {
@@ -161,7 +214,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login,
     register,
     logout,
-    loading
+    loading,
+    // Admin functions
+    getAllUsers: user?.role === UserRole.Admin ? getAllUsers : undefined,
+    deleteUser: user?.role === UserRole.Admin ? deleteUser : undefined,
+    updateUser: user?.role === UserRole.Admin ? updateUser : undefined,
+    clearAllUserData: user?.role === UserRole.Admin ? clearAllUserData : undefined,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

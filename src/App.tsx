@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -14,6 +13,7 @@ import Register from '@/pages/auth/Register';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import InstructorDashboard from '@/pages/dashboard/InstructorDashboard';
 import SupervisorDashboard from '@/pages/dashboard/SupervisorDashboard';
+import AdminDashboard from '@/pages/dashboard/AdminDashboard';
 import ActivityList from '@/pages/activities/ActivityList';
 import ActivityDetails from '@/pages/activities/ActivityDetails';
 import ActivityForm from '@/pages/activities/ActivityForm';
@@ -53,6 +53,7 @@ function AppContent() {
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/instructor" element={<InstructorDashboard />} />
               <Route path="/dashboard/supervisor" element={<SupervisorDashboard />} />
+              <Route path="/dashboard/admin" element={<AdminDashboard />} />
               <Route path="/activities" element={<ActivityList />} />
               <Route path="/activities/:activityId" element={<ActivityDetails />} />
               <Route path="/activities/new" element={<ActivityForm />} />

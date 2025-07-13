@@ -22,6 +22,8 @@ const NavBar: React.FC = () => {
         return "/dashboard/instructor";
       case UserRole.Supervisor:
         return "/dashboard/supervisor";
+      case UserRole.Admin:
+        return "/dashboard/admin";
       default:
         return "/";
     }

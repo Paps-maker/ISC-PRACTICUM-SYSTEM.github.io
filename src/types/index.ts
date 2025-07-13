@@ -1,4 +1,3 @@
-
 export enum UserRole {
   Student = "student",
   Instructor = "instructor", 
@@ -79,6 +78,11 @@ export interface AuthContextType {
   register: (name: string, email: string, password: string, role: UserRole, schoolId?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  // Admin functions - only available when user is admin
+  getAllUsers?: () => User[];
+  deleteUser?: (userId: string) => void;
+  updateUser?: (userId: string, updates: Partial<User>) => void;
+  clearAllUserData?: () => void;
 }
 
 export interface Announcement {

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -40,6 +39,9 @@ const Login: React.FC = () => {
         break;
       case UserRole.Supervisor:
         demoCredentials = { emailOrSchoolId: "supervisor@example.com", password: "password123" };
+        break;
+      case UserRole.Admin:
+        demoCredentials = { emailOrSchoolId: "admin@system.com", password: "admin123" };
         break;
     }
     
@@ -203,6 +205,16 @@ const Login: React.FC = () => {
                   disabled={isSubmitting}
                 >
                   Supervisor Demo
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDemoLogin(UserRole.Admin)}
+                  disabled={isSubmitting}
+                  className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                >
+                  Admin Demo
                 </Button>
               </div>
             </div>
