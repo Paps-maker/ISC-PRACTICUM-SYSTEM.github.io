@@ -32,7 +32,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
       onClick={onClick}
     >
       <Icon size={20} />
-      {!isMobile && <span>{label}</span>}
+      <span>{label}</span>
     </Link>
   );
 };

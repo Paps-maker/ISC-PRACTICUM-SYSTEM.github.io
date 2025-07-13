@@ -94,7 +94,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ role, isMobile, closeMobileMenu }) 
   }
 
   return (
-    <nav className="space-y-1">
+    <nav className="space-y-2">
       {links.map((link) => (
         <SidebarLink
           key={link.to}
