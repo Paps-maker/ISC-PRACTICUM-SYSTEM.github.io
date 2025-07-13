@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
 import NavBar from '@/components/layout/NavBar';
+import Sidebar from '@/components/layout/Sidebar';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Pages
 import Index from '@/pages/Index';
@@ -33,13 +35,17 @@ import './App.css';
 
 const queryClient = new QueryClient();
 
-function App() {
+function AppContent() {
+  const { user } = useAuth();
+  const showSidebar = !!user;
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <NavBar />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <NavBar />
+      <div className="flex flex-1 overflow-hidden">
+        {showSidebar && <Sidebar />}
+        <main className={`flex-1 overflow-y-auto ${showSidebar ? 'lg:ml-0' : ''}`}>
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
@@ -66,8 +72,20 @@ function App() {
               <Route path="/reports" element={<ProgressReports />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <Toaster />
           </div>
+        </main>
+      </div>
+      <Toaster />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <AppContent />
         </Router>
       </AuthProvider>
     </QueryClientProvider>

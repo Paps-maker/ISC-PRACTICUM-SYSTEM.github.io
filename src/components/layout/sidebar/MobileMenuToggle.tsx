@@ -16,21 +16,21 @@ const MobileMenuToggle: React.FC<MobileMenuToggleProps> = ({
     <>
       <Button
         variant="outline"
-        size="icon"
-        className="fixed top-4 left-4 z-50"
+        size="sm"
+        className="fixed top-4 left-4 z-50 lg:hidden bg-white shadow-md"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
       >
-        <Menu size={20} />
+        <Menu size={18} />
       </Button>
       
       {isMobileOpen && (
         <Button
           variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2"
+          size="sm"
+          className="absolute top-2 right-2 z-50 text-foreground hover:bg-gray-100"
           onClick={() => setIsMobileOpen(false)}
         >
-          <X size={20} />
+          <X size={18} />
         </Button>
       )}
     </>

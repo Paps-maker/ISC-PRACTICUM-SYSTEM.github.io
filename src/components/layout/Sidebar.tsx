@@ -11,13 +11,14 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const { user } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
         setIsMobileOpen(false);
       }
     };
@@ -36,6 +37,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
   return (
     <>
+      {/* Mobile overlay */}
+      {isMobile && isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setIsMobileOpen(false)} 
+        />
+      )}
+
       {isMobile && (
         <MobileMenuToggle 
           isMobileOpen={isMobileOpen} 
@@ -45,25 +54,27 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
       <aside
         className={cn(
-          "bg-white border-r h-screen transition-all",
+          "bg-white border-r transition-all duration-300 ease-in-out",
           isMobile
-            ? `fixed top-0 left-0 w-16 z-40 transform ${
+            ? `fixed top-0 left-0 h-full w-64 z-40 transform ${
                 isMobileOpen ? "translate-x-0" : "-translate-x-full"
               }`
-            : "w-64",
+            : "relative w-64 h-screen",
           className
         )}
       >
-        <div className="p-4">
-          <div className="text-xl font-bold mb-6 flex items-center justify-center">
-            {!isMobile && "ISC Practicum"}
+        <div className="p-4 h-full flex flex-col">
+          <div className="text-xl font-bold mb-6 flex items-center justify-center text-center">
+            ISC Practicum
           </div>
 
-          <NavLinks 
-            role={user.role} 
-            isMobile={isMobile} 
-            closeMobileMenu={closeMobileMenu} 
-          />
+          <div className="flex-1 overflow-y-auto">
+            <NavLinks 
+              role={user.role} 
+              isMobile={isMobile} 
+              closeMobileMenu={closeMobileMenu} 
+            />
+          </div>
         </div>
       </aside>
     </>

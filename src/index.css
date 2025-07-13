@@ -93,25 +93,60 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  html, body {
+    overflow-x: hidden;
+  }
 }
 
+/* Auth form styles - responsive */
 .auth-form {
-  @apply p-6 bg-white rounded-lg shadow-md w-full max-w-md mx-auto;
+  @apply p-4 sm:p-6 bg-white rounded-lg shadow-md w-full max-w-md mx-auto;
 }
 
 .auth-title {
-  @apply text-2xl font-bold mb-6 text-center;
+  @apply text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center;
 }
 
 .auth-input {
-  @apply w-full mb-4;
+  @apply w-full mb-3 sm:mb-4;
 }
 
 .auth-button {
   @apply w-full mt-2;
 }
 
+/* Dashboard grid - responsive */
 .dashboard-grid {
-  @apply grid gap-4 md:gap-6;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  @apply grid gap-3 sm:gap-4 md:gap-6;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive utilities */
+@layer utilities {
+  .container-responsive {
+    @apply w-full mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .text-responsive {
+    @apply text-sm sm:text-base;
+  }
+  
+  .heading-responsive {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .card-responsive {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
+  
+  .button-responsive {
+    @apply text-xs sm:text-sm px-2 sm:px-4 py-1.5 sm:py-2;
+  }
 }
