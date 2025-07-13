@@ -40,12 +40,12 @@ function AppContent() {
   const showSidebar = !!user;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen w-screen bg-gray-50 flex flex-col overflow-hidden">
       <NavBar />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 h-full overflow-hidden">
         {showSidebar && <Sidebar />}
-        <main className={`flex-1 overflow-y-auto ${showSidebar ? 'lg:ml-0' : ''}`}>
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <main className="flex-1 overflow-y-auto w-full">
+          <div className="h-full w-full p-4 sm:p-6 lg:p-8">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />

@@ -90,12 +90,23 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  html {
+    height: 100%;
+    overflow: hidden;
   }
 
-  html, body {
-    overflow-x: hidden;
+  body {
+    @apply bg-background text-foreground;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  #root {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
   }
 }
 
@@ -148,5 +159,38 @@
   
   .button-responsive {
     @apply text-xs sm:text-sm px-2 sm:px-4 py-1.5 sm:py-2;
+  }
+
+  .full-screen {
+    @apply h-screen w-screen;
+  }
+
+  .full-viewport {
+    @apply h-[100vh] w-[100vw];
+  }
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 480px) {
+  .container-responsive {
+    @apply px-2;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .container-responsive {
+    @apply px-4;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container-responsive {
+    @apply px-6;
+  }
+}
+
+@media (min-width: 1025px) {
+  .container-responsive {
+    @apply px-8;
   }
 }

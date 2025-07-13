@@ -54,12 +54,12 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
       <aside
         className={cn(
-          "bg-white border-r transition-all duration-300 ease-in-out",
+          "bg-white border-r transition-all duration-300 ease-in-out shrink-0",
           isMobile
             ? `fixed top-0 left-0 h-full w-64 z-40 transform ${
                 isMobileOpen ? "translate-x-0" : "-translate-x-full"
               }`
-            : "relative w-64 h-screen",
+            : "relative w-64 h-full",
           className
         )}
       >
